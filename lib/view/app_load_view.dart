@@ -2,14 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/main_controller.dart';
+import 'package:lgu_bplo/controller/network_connection_controller.dart';
 import 'package:lgu_bplo/model/application_status_model.dart';
 import 'package:lgu_bplo/model/application_type_model.dart';
 import 'package:lgu_bplo/model/business_type_model.dart';
 import 'package:lgu_bplo/model/payment_mode_model.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
+import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:restart_app/restart_app.dart';
 
 import '../controller/account_controller.dart';
 import '../utils/snackbar_dialog.dart';
@@ -22,6 +25,7 @@ class AppLoadView extends StatefulWidget {
 }
 
 class AppLoadViewState extends State<AppLoadView> {
+  final NetworkConnectionController networkConnectionController = Get.find();
   final AccountController accountController = Get.find();
   final MainController mainController = Get.find();
 
@@ -50,47 +54,60 @@ class AppLoadViewState extends State<AppLoadView> {
       Get.offAllNamed(PageRoutes.Login);
     } else {
       String userId = accountController.getUserId();
-      getUserInfo(userId.toString()).then((value) {
-        if (value == "Fail" || userController.getId() == "") {
-          userController.clearState();
-          accountController.clearStorage();
-          showSnackbar("Welcome", "Guest.");
-          Get.offAllNamed(PageRoutes.Login);
+      networkConnectionController.checkConnectionStatus().then((connResult) async {
+        if (connResult) {
+          getUserInfo(userId.toString()).then((value) {
+            if (value == "Fail" || userController.getId() == "") {
+              userController.clearState();
+              accountController.clearStorage();
+              showSnackbar("Welcome", "Guest.");
+              Get.offAllNamed(PageRoutes.Login);
+            } else {
+              showSnackbar("Welcome", userController.getFullName());
+              Get.toNamed(PageRoutes.Home);
+            }
+          });
         } else {
-          showSnackbar("Welcome", userController.getFullName());
-          Get.toNamed(PageRoutes.Home);
+          return;
         }
       });
     }
   }
 
   initSetup() async {
-    await getListPaymentMode().then((res) {
-      if (res != null) {
-        res.forEach((p) {
-          mainController.listPaymentMode.add(PaymentModeModel.fromJson(p));
+    networkConnectionController.checkConnectionStatus().then((connResult) async {
+      if (connResult) {
+        await getListPaymentMode().then((res) {
+          if (res != null) {
+            res.forEach((p) {
+              mainController.listPaymentMode.add(PaymentModeModel.fromJson(p));
+            });
+          }
         });
-      }
-    });
-    await getListApplicationStatus().then((res) {
-      if (res != null) {
-        res.forEach((a) {
-          mainController.listApplicationStatus.add(ApplicationStatusModel.fromJson(a));
+        await getListApplicationStatus().then((res) {
+          if (res != null) {
+            res.forEach((a) {
+              mainController.listApplicationStatus.add(ApplicationStatusModel.fromJson(a));
+            });
+          }
         });
-      }
-    });
-    await getListApplicationType().then((res) {
-      if (res != null) {
-        res.forEach((a) {
-          mainController.listApplicationType.add(ApplicationTypeModel.fromJson(a));
+        await getListApplicationType().then((res) {
+          if (res != null) {
+            res.forEach((a) {
+              mainController.listApplicationType.add(ApplicationTypeModel.fromJson(a));
+            });
+          }
         });
-      }
-    });
-    await getListBusinessType().then((res) {
-      if (res != null) {
-        res.forEach((b) {
-          mainController.listBusinessType.add(BusinessTypeModel.fromJson(b));
+        await getListBusinessType().then((res) {
+          if (res != null) {
+            res.forEach((b) {
+              mainController.listBusinessType.add(BusinessTypeModel.fromJson(b));
+            });
+          }
         });
+      } else {
+        popupDialog(context, "", "Please check your internet connection.");
+        return;
       }
     });
   }

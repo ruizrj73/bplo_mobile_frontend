@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class Env {
   static String env = "dev";
-  static String devIP = "192.168.2.12";
-  static String liveIP = "178.128.107.47";
-  static String port = "3000";
+  static String devIP = "143.198.91.135";
+  static String liveIP = "143.198.91.135";
+  static String port = "9009";
   static String apiVersion = "v1";
   static String apiKey = "ca03na188ame03u1d78620de67282882a84";
 

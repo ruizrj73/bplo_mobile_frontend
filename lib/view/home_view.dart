@@ -147,7 +147,7 @@ class HomeViewState extends State<HomeView> {
         Container( // Body
           padding: EdgeInsets.all(32),
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height - 230,
+          height: MediaQuery.of(context).size.height - 242,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -158,7 +158,7 @@ class HomeViewState extends State<HomeView> {
                   width: MediaQuery.of(context).size.width,
                   height: 80,
                   child: FittedBox(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.center,
                     fit: BoxFit.scaleDown,
                     child: Column(
                       children: [

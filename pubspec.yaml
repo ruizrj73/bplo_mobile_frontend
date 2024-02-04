@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   device_info_plus: ^3.2.2
   expandable_bottom_sheet: ^1.1.1+1
+  file_picker: ^4.3.3
   flutter_countdown_timer: ^4.1.0
   flutter_easyloading: ^3.0.3
   flutter_icons: ^1.1.0
@@ -46,6 +47,7 @@ dependencies:
   flutter_svg: ^0.23.0+1
   get: ^4.3.8
   get_storage: ^2.0.3
+  image_picker: ^0.8.6
   package_info_plus: ^1.4.0
   percent_indicator: ^4.2.2
   permission_handler: ^10.2.0
