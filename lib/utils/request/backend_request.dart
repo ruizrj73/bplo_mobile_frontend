@@ -237,6 +237,23 @@ Future<String> getUserInfo(String userId) async {
   return response["resultEnum"];
 }
 
+Future<String> saveTokenToDB(String _token, String _oldToken) async {
+  var response;
+  String url = apiUrl + fToken;
+  String _body = "";
+
+  _body = jsonEncode(<String, Object>{
+    "userId": userController.getId().toString(),
+    "firebaseToken": _token,
+  });
+
+  await sendRequest(requestMethod.post, url, body: _body, isTokenRequired: true).then((value) {
+    response = value;
+  });
+
+  return response["resultEnum"];
+}
+
 Future<dynamic> getListPaymentMode() async {
   var response;
   String url = apiUrl + paymentmode;
@@ -300,7 +317,7 @@ Future<dynamic> getListBusinessType() async {
 Future<dynamic> getListTransactions() async {
   var response;
   String url = apiUrl + businessapplication;
-  url = url + "/by-user/" + userController.getId();
+  url = url + "/by-user/" + accountController.getUserId();
 
   await sendRequest(requestMethod.get, url, isTokenRequired: true).then((value) {
     response = value;
@@ -322,6 +339,77 @@ Future<dynamic> saveBusinessApplication(BusinessApplication _businessApplication
   _body = jsonEncode(_businessApplication.toJson());
 
   await sendRequest(requestMethod.post, url, body: _body, isTokenRequired: true).then((value) {
+    response = value;
+  });
+
+  if (response["resultEnum"] == "Success") {
+    return response["resultObject"];
+  }
+
+  return response["resultEnum"];
+}
+
+Future<dynamic> updateBusinessApplication(BusinessApplication _businessApplication) async {
+  var response;
+  String url = apiUrl + businessapplication;
+  url = url + "/" + _businessApplication.id;
+
+  String _body = "";
+
+  _body = jsonEncode(_businessApplication.toJson());
+
+  await sendRequest(requestMethod.patch, url, body: _body, isTokenRequired: true).then((value) {
+    response = value;
+  });
+
+  if (response["resultEnum"] == "Success") {
+    return response["resultObject"];
+  }
+
+  return response["resultEnum"];
+}
+
+Future<dynamic> getInbox() async {
+  var response;
+  String url = apiUrl + inbox;
+  url = url + "/by-user/" + userController.getId();
+
+  await sendRequest(requestMethod.get, url, isTokenRequired: true).then((value) {
+    response = value;
+  });
+
+  if (response["resultEnum"] == "Success") {
+    return response["resultObject"];
+  }
+
+  return response["resultEnum"];
+}
+
+Future<dynamic> deleteMessage(String msgId) async {
+  var response;
+  String url = apiUrl + inbox;
+  url = url + "/" + msgId;
+
+  await sendRequest(requestMethod.delete, url, isTokenRequired: true).then((value) {
+    response = value;
+  });
+
+  return response["resultEnum"];
+}
+
+Future<dynamic> markAsReadMessage(String msgId) async {
+  var response;
+  String url = apiUrl + inbox;
+  url = url + "/" + msgId;
+
+  String _body = "";
+
+  _body = jsonEncode(<String, Object>{
+    "id": msgId,
+    "messageState": "Read",
+  });
+
+  await sendRequest(requestMethod.patch, url, body: _body, isTokenRequired: true).then((value) {
     response = value;
   });
 

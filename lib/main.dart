@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -12,24 +13,29 @@ import 'package:get_storage/get_storage.dart';
 import 'package:lgu_bplo/controller/account_controller.dart';
 import 'package:lgu_bplo/controller/device_info_controller.dart';
 import 'package:lgu_bplo/controller/console_logs_controller.dart';
+import 'package:lgu_bplo/controller/file_controller.dart';
 import 'package:lgu_bplo/controller/main_controller.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
 import 'package:lgu_bplo/controller/permission_controller.dart';
 import 'package:lgu_bplo/controller/user_controller.dart';
+import 'package:lgu_bplo/firebase_options.dart';
 import 'package:lgu_bplo/utils/app_version_handler.dart';
 import 'package:lgu_bplo/utils/env.dart';
+import 'package:lgu_bplo/utils/firebase_messaging_handler.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:lgu_bplo/view/account_option_view.dart';
 import 'package:lgu_bplo/view/account_profile_view.dart';
 import 'package:lgu_bplo/view/app_load_view.dart';
 import 'package:lgu_bplo/view/business_application/business_application_view.dart';
+import 'package:lgu_bplo/view/change_password_view.dart';
 import 'package:lgu_bplo/view/create_account_view.dart';
 import 'package:lgu_bplo/view/forgot_password_view.dart';
 import 'package:lgu_bplo/view/help_center_view.dart';
 import 'package:lgu_bplo/view/home_view.dart';
 import 'package:lgu_bplo/view/inbox_view.dart';
 import 'package:lgu_bplo/view/login_view.dart';
+import 'package:lgu_bplo/view/message_detail_view.dart';
 import 'package:lgu_bplo/view/otp_view.dart';
 import 'package:lgu_bplo/view/privacy_policy_view.dart';
 import 'package:lgu_bplo/view/reset_password_view.dart';
@@ -42,8 +48,24 @@ Future<void> main() async {
   await GetStorage.init();
   configLoading();
   WidgetsFlutterBinding.ensureInitialized();
+  initFirebase();
 
   runApp(MyApp());
+}
+
+initFirebase() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  ).then((value) {
+    FirebaseMessagingHandler firebaseMessagingHandler = Get.find();
+    print("Firebase initialized");
+
+    firebaseMessagingHandler.initBackgroundMessageHandler();
+    
+    firebaseMessagingHandler.requestPermission();
+    firebaseMessagingHandler.getToken();
+  });
 }
 
 void configLoading() {
@@ -184,14 +206,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    Get.put<NetworkConnectionController>(NetworkConnectionController(), permanent: true);
     Get.put<ConsoleLogsController>(ConsoleLogsController(), permanent: true);
+    Get.put<FileController>(FileController(), permanent: true);
     Get.put<PermissionController>(PermissionController(), permanent: true);
     Get.put<AccountController>(AccountController(), permanent: true);
     Get.put<MainController>(MainController(), permanent: true);
-    Get.put<NetworkConnectionController>(NetworkConnectionController(), permanent: true);
     Get.put<AppVersionHandler>(AppVersionHandler(), permanent: true);
     Get.put<DeviceInfoController>(DeviceInfoController(), permanent: true);
     Get.put<UserController>(UserController(), permanent: true);
+    Get.put<FirebaseMessagingHandler>(FirebaseMessagingHandler(), permanent: true);
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       // initialBinding: NetworkBinding(),
@@ -223,12 +247,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         GetPage(name: PageRoutes.CreateAccount, page: () => const CreateAccountView()),
         GetPage(name: PageRoutes.UserProfile, page: () => const UserProfileView()),
         GetPage(name: PageRoutes.ForgotPassword, page: () => const ForgotPasswordView()),
-        // GetPage(name: PageRoutes.ChangePassword, page: () => const ChangePasswordView()),
+        GetPage(name: PageRoutes.ChangePassword, page: () => const ChangePasswordView()),
         // GetPage(name: PageRoutes.ChangeNumber, page: () => const ChangeNumberView()),
         GetPage(name: PageRoutes.ResetPassword, page: () => const ResetPasswordView()),
         GetPage(name: PageRoutes.Otp, page: () => const OtpView()),
         
         GetPage(name: PageRoutes.AccountInbox, page: () => const InboxView()),
+        GetPage(name: PageRoutes.MessageDetail, page: () => const MessageDetailView()),
         GetPage(name: PageRoutes.AccountTransaction, page: () => const TransactionsView()),
         GetPage(name: PageRoutes.AccountOption, page: () => const AccountOptionView()),
         GetPage(name: PageRoutes.HelpCenter, page: () => const HelpCenterView()),

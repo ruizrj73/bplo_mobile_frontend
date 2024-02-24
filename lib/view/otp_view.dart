@@ -6,6 +6,7 @@ import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
+import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
@@ -258,11 +259,11 @@ class OtpViewState extends State<OtpView> {
 
   verifyOtp() {
     if (otpController.text == "") {
-      popupDialog(context, "", "Please input OTP.");
+      popupDialog(context, NotifHeader.error, "Please input OTP.");
       return;
     }
     if (otpController.text.length != 6) {
-      popupDialog(context, "", "Invalid Code.");
+      popupDialog(context, NotifHeader.error, "Invalid Code.");
       return;
     }
     networkConnectionController.checkConnectionStatus().then((connResult) async {
@@ -274,11 +275,11 @@ class OtpViewState extends State<OtpView> {
             Get.back(result: true);
           } else {
             EasyLoading.dismiss();
-            popupDialog(context, '', value["code"]);
+            popupDialog(context, NotifHeader.error, value["code"]);
           }
         });
       } else {
-        popupDialog(context, "", "Please check your internet connection.");
+        popupDialog(context, NotifHeader.error, "Please check your internet connection.");
         return;
       }
     });

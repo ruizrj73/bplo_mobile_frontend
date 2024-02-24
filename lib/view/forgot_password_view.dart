@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
+import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import '../utils/popup_dialog.dart';
@@ -92,7 +93,7 @@ class ForgotPasswordViewState extends State<ForgotPasswordView> {
             child: TextFormField(
               controller: _userAccountController,
               textInputAction: TextInputAction.next,
-              keyboardType: TextInputType.phone,
+              keyboardType: TextInputType.text,
               decoration: InputDecoration(
                 counterText: '',
                 contentPadding: EdgeInsets.only(top: 9, bottom: 8),
@@ -162,12 +163,12 @@ class ForgotPasswordViewState extends State<ForgotPasswordView> {
             });
           } else {
             EasyLoading.dismiss();
-            popupDialog(context, '', "Account does not exist.");
+            popupDialog(context, NotifHeader.error, "Account does not exist.");
           }
         });
       } else {
         EasyLoading.dismiss();
-        popupDialog(context, "", "Please check your internet connection.");
+        popupDialog(context, NotifHeader.error, "Please check your internet connection.");
         return;
       }
     });

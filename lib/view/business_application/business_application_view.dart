@@ -1,26 +1,20 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_final_fields, prefer_const_literals_to_create_immutables, avoid_function_literals_in_foreach_calls, no_leading_underscores_for_local_identifiers
+// ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_final_fields, prefer_const_literals_to_create_immutables, no_leading_underscores_for_local_identifiers
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/main_controller.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
 import 'package:lgu_bplo/model/business_application_model.dart';
+import 'package:lgu_bplo/utils/attach_file_dialog.dart';
+import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
-
-class TransactionPages {
-  int pageNumber;
-  String pageTitle;
-  bool isExpanded;
-
-  TransactionPages(
-    this.pageNumber,
-    this.pageTitle,
-    this.isExpanded,
-  );
-}
+import 'package:lgu_bplo/view/business_application/business_address_info_view.dart';
+import 'package:lgu_bplo/view/business_application/business_basic_info_view.dart';
+import 'package:lgu_bplo/view/business_application/business_operation_info_view.dart';
+import 'package:lgu_bplo/view/business_application/business_other_info_view.dart';
+import 'package:lgu_bplo/view/business_application/business_requirement_view.dart';
 
 class BusinessApplicationView extends StatefulWidget {
   // ignore: use_key_in_widget_constructors
@@ -32,60 +26,27 @@ class BusinessApplicationView extends StatefulWidget {
 class BusinessApplicationViewState extends State<BusinessApplicationView> {
   final MainController mainController = Get.find();
   final NetworkConnectionController networkConnectionController = Get.find();
-  String _formTitle = "";
-  final _applicationType = Get.arguments;
-
-  List<String> _paymentModeSelection = [];
-  List<String> _taxYearSelection = ["2025", "2024", "2023"];
-  List<String> _orgTypeSelection = [];
-
-  String selectedAppTypeOption = "New";
-  String paymentMode = "";
-  String taxYear = "2024";
-  String orgType = "";
-  bool _req1Attachment = false;
-  bool _req2Attachment = false;
-  bool _req3Attachment = false;
-  final businessName = TextEditingController();
-  final businessTinNo = TextEditingController();
+  ScrollController scrollController = ScrollController();
   
-
-  List<TransactionPages> transactionPage = [];
+  String _formTitle = "";
+  int viewedTab = 1;
 
   @override
   void initState() {
     super.initState();
 
     setState(() {
-      switch (_applicationType[0]) {
+      switch (userController.applicationType.value) {
         case "New":
           _formTitle = "New Business Permit Application";
-          selectedAppTypeOption = "New";
           break;
         case "Renew":
-          selectedAppTypeOption = "Renew";
           _formTitle = "Renew Business Permit Application";
           break;
         default:
           _formTitle = "New Business Permit Application";
-          selectedAppTypeOption = "New";
           break;
       }
-
-      transactionPage = [
-        TransactionPages(1, "Business Application", true),
-        TransactionPages(2, "Business Application2", true),
-      ];
-      
-      mainController.listPaymentMode.forEach((pmode) {
-        _paymentModeSelection.add(pmode.payment_type);
-      });
-      mainController.listBusinessType.forEach((btype) {
-        _orgTypeSelection.add(btype.organization_type);
-      });
-
-      paymentMode = mainController.listPaymentMode[0].payment_type;
-      orgType = mainController.listBusinessType[0].organization_type;
     });
   }
 
@@ -99,6 +60,8 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
     return WillPopScope(
       child: buildPage(),
       onWillPop: () {
+        fileController.listFileAttachment.value.fileAttachments = [];
+        fileController.listFileAttachment.refresh();
         Get.back();
         return;
       },
@@ -114,6 +77,8 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: ThemeColor.primaryText),
           onPressed: () {
+            fileController.listFileAttachment.value.fileAttachments = [];
+            fileController.listFileAttachment.refresh();
             Get.back();
           },
         ),
@@ -137,471 +102,300 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
 
   Widget bodyView() {
     return SingleChildScrollView(
+      controller: scrollController,
       padding: EdgeInsets.all(16),
-      child: page1(),
-    );
-  }
-
-  Widget page1() {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.all(16),
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            border: Border.all(
-              width: 2,
-              color: ThemeColor.primary,
+      child: Column(
+        children: [
+          viewedTab == 1 ? BusinessBasicInfoView() : Container(),
+          viewedTab == 2 ? BusinessOtherInfoView() : Container(),
+          viewedTab == 3 ? BusinessAddressInfoView() : Container(),
+          viewedTab == 4 ? BusinessOperationInfoView() : Container(),
+          viewedTab == 5 ? BusinessRequirementView() : Container(),
+          SizedBox(height: 32),
+          viewedTab == 1 ? TextButton(
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              backgroundColor: userController.activeBusinessApplication.value.application_status != "Waiting List" ? ThemeColor.primary : ThemeColor.disabled,
+              minimumSize: Size(MediaQuery.of(context).size.width / 1.2, 50),
+              shadowColor: ThemeColor.secondary,
+              elevation: 3,
             ),
-            borderRadius: BorderRadius.all(
-                Radius.circular(10)
+            onPressed: () async {
+              if (userController.activeBusinessApplication.value.id == null) {
+                buttonFn("Submit");
+              } else {
+                if (userController.activeBusinessApplication.value.application_status != "Waiting List") {
+                  buttonFn("Continue");
+                }
+              }
+            },
+            child: Text(
+              userController.activeBusinessApplication.value.id == null ? "Submit" : "Continue",
+              style: TextStyle(
+                  color: ThemeColor.primaryText,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          ) :
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Type of Application :", style: TextStyle(fontSize: 12)),
-              SizedBox(height: 4),
-              Row(
-                children: [
-                  SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: Radio(
-                      value: "New",
-                      groupValue: selectedAppTypeOption,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedAppTypeOption = value;
-                        });
-                      },
-                    ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.horizontal(left: Radius.circular(30)),
                   ),
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        selectedAppTypeOption = "New";
-                      });
-                    },
-                    child: Text("New", style: TextStyle(fontSize: 12)),
-                  ),
-                  SizedBox(width: 16),
-                  SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: Radio(
-                      value: "Renew",
-                      groupValue: selectedAppTypeOption,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedAppTypeOption = value;
-                        });
-                      },
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        selectedAppTypeOption = "Renew";
-                      });
-                    },
-                    child: Text("Renew", style: TextStyle(fontSize: 12)),
-                  ),
-                ],
-              ),
-              SizedBox(height: 8),
-              Text("Mode of Payment :", style: TextStyle(fontSize: 12)),
-              SizedBox(height: 4),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 30,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(4.0))),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: ThemeColor.secondary,
-                      ),
-                      hint: const Text(''),
-                      isExpanded: true,
-                      value: paymentMode,
-                      onChanged: (String newValue) {
-                        setState(() {
-                          paymentMode = newValue;
-                        });
-                      },
-                      items: _paymentModeSelection.map((String items) {
-                        return DropdownMenuItem( 
-                          value: items, 
-                          child: Text(items, style: TextStyle(fontSize: 12)), 
-                        ); 
-                      }).toList(), 
-                    ),
-                  ),
+                  backgroundColor: viewedTab > 2 ? ThemeColor.primary : ThemeColor.disabled,
+                  minimumSize: Size(MediaQuery.of(context).size.width / 4, 50),
+                  shadowColor: ThemeColor.secondary,
+                  elevation: 3,
+                ),
+                onPressed: () async {
+                  if (viewedTab > 2) {
+                    buttonFn("Prev");
+                  }
+                },
+                child: Text(
+                  'Prev',
+                  style: TextStyle(
+                      color: ThemeColor.primaryText,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16),
                 ),
               ),
-              SizedBox(height: 8),
-              Text("Tax Year :", style: TextStyle(fontSize: 12)),
-              SizedBox(height: 4),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 30,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(4.0))),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              TextButton(
+                style: TextButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
                   ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: ThemeColor.secondary,
-                      ),
-                      hint: const Text(''),
-                      isExpanded: true,
-                      value: taxYear,
-                      onChanged: (String newValue) {
-                        setState(() {
-                          taxYear = newValue;
-                        });
-                      },
-                      items: _taxYearSelection.map((String items) {
-                        return DropdownMenuItem( 
-                          value: items, 
-                          child: Text(items, style: TextStyle(fontSize: 12)), 
-                        ); 
-                      }).toList(), 
-                    ),
-                  ),
+                  backgroundColor: ThemeColor.primary,
+                  minimumSize: Size(MediaQuery.of(context).size.width / 3, 50),
+                  shadowColor: ThemeColor.secondary,
+                  elevation: 3,
+                ),
+                onPressed: () async {
+                  buttonFn("Save as Draft");
+                },
+                child: Text(
+                  'Save as Draft',
+                  style: TextStyle(
+                      color: ThemeColor.primaryText,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16),
                 ),
               ),
-              SizedBox(height: 8),
-              Text("Type of Organization :", style: TextStyle(fontSize: 12)),
-              SizedBox(height: 4),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 30,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(4.0))),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              TextButton(
+                style: TextButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.horizontal(right: Radius.circular(30)),
                   ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: ThemeColor.secondary,
-                      ),
-                      hint: const Text(''),
-                      isExpanded: true,
-                      value: orgType,
-                      onChanged: (String newValue) {
-                        setState(() {
-                          orgType = newValue;
-                        });
-                      },
-                      items: _orgTypeSelection.map((String items) {
-                        return DropdownMenuItem( 
-                          value: items, 
-                          child: Text(items, style: TextStyle(fontSize: 12)), 
-                        ); 
-                      }).toList(), 
-                    ),
-                  ),
+                  backgroundColor: ThemeColor.primary,
+                  minimumSize: Size(MediaQuery.of(context).size.width / 4, 50),
+                  shadowColor: ThemeColor.secondary,
+                  elevation: 3,
                 ),
-              ),
-              SizedBox(height: 8),
-              Text("Business Name :", style: TextStyle(fontSize: 12)),
-              SizedBox(height: 4),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 30,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(4.0))),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                  child: TextField(
-                    textCapitalization: TextCapitalization.words,
-                    controller: businessName,
-                    decoration: InputDecoration(
-                      border: InputBorder.none, 
-                      contentPadding: EdgeInsets.only(
-                        bottom: 15,
-                      ),
-                    ),
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-              ),
-              SizedBox(height: 8),
-              Text("TIN Number :", style: TextStyle(fontSize: 12)),
-              SizedBox(height: 4),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 30,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(4.0))),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                  child: TextField(
-                    controller: businessTinNo,
-                    decoration: InputDecoration(
-                      border: InputBorder.none, 
-                      contentPadding: EdgeInsets.only(
-                        bottom: 15,
-                      ),
-                    ),
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-              ),
-              SizedBox(height: 8),
-              Text("Application Requirements :", style: TextStyle(fontSize: 12)),
-              SizedBox(height: 8),
-              SizedBox(
-                height: 23,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: Checkbox(
-                            value: _req1Attachment,
-                            onChanged: (bool value) {
-                            },
-                          )
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width - 190,
-                          child: FittedBox(
-                            alignment: Alignment.centerLeft,
-                            fit: BoxFit.scaleDown,
-                            child: Text('DTI/SEC/CDA (Complete Page & Valid)', style: TextStyle(fontSize: 11)),
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                      ],
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.all(0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        backgroundColor: ThemeColor.primary,
-                        fixedSize: Size(80, 30),
-                        foregroundColor: ThemeColor.primaryText,
-                        shadowColor: Colors.black
-                      ),
-                      onPressed: () {
-                        attachFile1();
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Attach', style: TextStyle(fontSize: 10)),
-                          SizedBox(width: 4),
-                          Icon(Feather.file, size: 15),
-                        ],
-                      )
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 8),
-              SizedBox(
-                height: 23,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: Checkbox(
-                            value: _req2Attachment,
-                            onChanged: (bool value) {
-                            },
-                          )
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width - 190,
-                          child: FittedBox(
-                            alignment: Alignment.centerLeft,
-                            fit: BoxFit.scaleDown,
-                            child: Text('Barangay Clearance for Business', style: TextStyle(fontSize: 11)),
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                      ],
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.all(0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        backgroundColor: ThemeColor.primary,
-                        fixedSize: Size(80, 30),
-                        foregroundColor: ThemeColor.primaryText,
-                        shadowColor: Colors.black
-                      ),
-                      onPressed: () {
-                        attachFile2();
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Attach', style: TextStyle(fontSize: 10)),
-                          SizedBox(width: 4),
-                          Icon(Feather.file, size: 15),
-                        ],
-                      )
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 8),
-              SizedBox(
-                height: 23,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: Checkbox(
-                            value: _req3Attachment,
-                            onChanged: (bool value) {
-                            },
-                          )
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width - 190,
-                          child: FittedBox(
-                            alignment: Alignment.centerLeft,
-                            fit: BoxFit.scaleDown,
-                            child: Text('Community Tax Certificate for Business', style: TextStyle(fontSize: 11)),
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                      ],
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.all(0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        backgroundColor: ThemeColor.primary,
-                        fixedSize: Size(80, 30),
-                        foregroundColor: ThemeColor.primaryText,
-                        shadowColor: Colors.black
-                      ),
-                      onPressed: () {
-                        attachFile3();
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Attach', style: TextStyle(fontSize: 10)),
-                          SizedBox(width: 4),
-                          Icon(Feather.file, size: 15),
-                        ],
-                      )
-                    ),
-                  ],
+                onPressed: () async {
+                  if (viewedTab == 5) {
+                    buttonFn("Submit");
+                  } else {
+                    buttonFn("Next");
+                  }
+                },
+                child: Text(
+                  viewedTab == 5 ? 'Submit' : 'Next',
+                  style: TextStyle(
+                      color: ThemeColor.primaryText,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16),
                 ),
               ),
             ],
           ),
-        ),
-        SizedBox(height: 32),
-        TextButton(
-          style: TextButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            backgroundColor: ThemeColor.primary,
-            minimumSize: Size(MediaQuery.of(context).size.width / 1.5, 50),
-            shadowColor: ThemeColor.secondary,
-            elevation: 3,
-          ),
-          onPressed: () async {
-            submitP1();
-          },
-          child: Text(
-            'Submit',
-            style: TextStyle(
-                color: ThemeColor.primaryText,
-                fontWeight: FontWeight.w800,
-                fontSize: 16),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  attachFile1() { // DTI/SEC/CDA (Complete Page & Valid)
-    
+  buttonFn(String _fn) {
+    switch (_fn) {
+      case "Next":
+        switch (viewedTab) {
+          case 2:
+            BusinessOtherInfoView.businessOtherInfoEntry();
+            break;
+          case 3:
+            BusinessAddressInfoView.businessAddressInfoEntry();
+            break;
+          case 4:
+            break;
+        }
+        setState(() {
+          viewedTab += 1;
+          scrollController.animateTo(0,
+            duration: Duration(milliseconds: 500), 
+            curve: Curves.ease
+          );
+        });
+        break;
+      case "Prev":
+        setState(() {
+          viewedTab -= 1;
+          scrollController.animateTo(0,
+            duration: Duration(milliseconds: 500), 
+            curve: Curves.ease
+          );
+        });
+        break;
+      case "Submit":
+        if (viewedTab == 1) {
+          if (userController.activeBusinessApplication.value.application_status == null) {
+            BusinessBasicInfoView.businessBasicInfoEntry().then((value) {
+              userController.activeBusinessApplication.value.application_status = "Waiting List";
+              submitPreBusinessApplication();
+            });
+          } else {
+            BusinessBasicInfoView.businessBasicInfoEntry().then((value) {
+              setState(() {
+                viewedTab += 1;
+                scrollController.animateTo(0,
+                  duration: Duration(milliseconds: 500), 
+                  curve: Curves.ease
+                );
+              });
+            });
+          }
+        } else if (viewedTab == 5) {
+          submitBusinessApplication();
+        }
+        break;
+      case "Save as Draft":
+       break;
+      case "Continue":
+        setState(() {
+          viewedTab += 1;
+          scrollController.animateTo(0,
+            duration: Duration(milliseconds: 500), 
+            curve: Curves.ease
+          );
+        });
+        break;
+      default:
+        break;
+    }
   }
 
-  attachFile2() { // Barangay Clearance for Business
-    
-  }
+  submitPreBusinessApplication() {
+    if (userController.activeBusinessApplication.value.business_name.trim() == "") {
+      popupDialog(context, NotifHeader.error, "Please input Business Name.");
+      return;
+    }
 
-  attachFile3() { // Community Tax Certificate for Business
-    
-  }
-
-  submitP1() {
     networkConnectionController.checkConnectionStatus().then((connResult) async {
       if (connResult) {
         EasyLoading.show();
-        BusinessApplication _businessApplication = new BusinessApplication(
-          "",
-          "TXN000000001",
-          userController.getId(),
-          userController.getFullName(),
-          selectedAppTypeOption,
-          paymentMode,
-          taxYear,
-          orgType,
-          businessName.text,
-          "",
-          businessTinNo.text,
-          0,
-          0,
-          0,
-          0,
-          0,
-          "remarks",
-          "Waiting List",
-          DateTime.now(),
-          []
-        );
 
-        await saveBusinessApplication(_businessApplication).then((value) {
+        String fileName = "Business/Attachment/${userController.getId()}/BusinessRequirement/${DateTime.now().millisecondsSinceEpoch.toString()}";
+        for (var e in (fileController.listFileAttachment.value.fileAttachments ?? [])) {
+          if (e.files.isNotEmpty) {
+            await fileController.uploadFile(e.files, fileName).then((_imageUrls) async {
+              if (_imageUrls.isNotEmpty) {
+                e.url = _imageUrls;
+              } else {
+                e.url = [];
+              }
+            });
+          }
+        }
+
+        List<AttachmentModel> _attachments = [];
+        for (var e in (fileController.listFileAttachment.value.fileAttachments ?? [])) {
+          if (e.url.isNotEmpty) {
+            for (var u in e.url) {
+              AttachmentModel _att = AttachmentModel(
+                "",
+                u.split(".").last,
+                u.split("/").last,
+                e.type,
+                u,
+                "",
+                ""
+              );
+              _attachments.add(_att);
+            }
+          }
+        }
+
+        userController.activeBusinessApplication.value.attachment = _attachments;
+        userController.activeBusinessApplication.value.application_type = userController.applicationType.value;
+        userController.activeBusinessApplication.value.user_id = userController.getId();
+        userController.activeBusinessApplication.value.user_name = userController.getFullName();
+
+        await saveBusinessApplication(userController.activeBusinessApplication.value).then((value) {
           EasyLoading.dismiss();
-          popupDialog(context, "Success", "We've received you send request. We will notify you for the next step while your account is in verification.").then((value) {
+          popupDialog(context, NotifHeader.success, "We've received you send request. We will notify you for the next step while your account is in verification.").then((value) {
+            fileController.listFileAttachment.value.fileAttachments = [];
+            userController.activeBusinessApplication.value = BusinessApplication();
             Get.back();
           });
         });
         
       } else {
-        popupDialog(context, "", "Please check your internet connection.");
+        popupDialog(context, NotifHeader.error, "Please check your internet connection.");
+        return;
+      }
+    });
+  }
+
+  submitBusinessApplication() {
+    networkConnectionController.checkConnectionStatus().then((connResult) async {
+      if (connResult) {
+        EasyLoading.show();
+
+        String fileName = "Business/Attachment/${userController.getId()}/BusinessRequirement/${DateTime.now().millisecondsSinceEpoch.toString()}";
+        for (var e in fileController.listFileAttachment.value.fileAttachments) {
+          if (e.files.isNotEmpty) {
+            await fileController.uploadFile(e.files, fileName).then((_imageUrls) async {
+              if (_imageUrls.isNotEmpty) {
+                e.url = _imageUrls;
+              } else {
+                e.url = [];
+              }
+            });
+          }
+        }
+
+        List<AttachmentModel> _attachments = [];
+        for (var e in fileController.listFileAttachment.value.fileAttachments) {
+          if (e.url.isNotEmpty) {
+            for (var u in e.url) {
+              AttachmentModel _att = AttachmentModel(
+                "",
+                u.split(".").last,
+                u.split("/").last,
+                "",
+                u,
+                "",
+                ""
+              );
+              _attachments.add(_att);
+            }
+          }
+        }
+
+        userController.activeBusinessApplication.value.attachment = _attachments;
+
+        await updateBusinessApplication(userController.activeBusinessApplication.value).then((value) {
+          EasyLoading.dismiss();
+          popupDialog(context, NotifHeader.success, "We've received you send request. We will notify you for the next step while your account is in verification.").then((value) {
+            fileController.listFileAttachment.value.fileAttachments = [];
+            Get.back();
+          });
+        });
+        
+      } else {
+        popupDialog(context, NotifHeader.error, "Please check your internet connection.");
         return;
       }
     });

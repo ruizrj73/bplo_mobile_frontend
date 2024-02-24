@@ -3,7 +3,7 @@
 import 'package:lgu_bplo/utils/env.dart';
 
 String baseUrl = "http://" + (Env.env == "dev" ? Env.devIP : Env.liveIP);
-String apiUrl = baseUrl + ":" + Env.port + "/api/" + Env.apiVersion + "/";
+String apiUrl = baseUrl + ":" + (Env.env == "dev" ? Env.devPort : Env.livePort) + "/api/" + Env.apiVersion + "/";
 
 String user = "user";
 String register = "user/register";
@@ -21,6 +21,7 @@ String applicationtype = "setup/applicationtype";
 String businesstype = "setup/businesstype";
 
 String businessapplication = "business-application";
+String inbox = "mobile-inbox";
 
 String appVersion = "version";
 String device = "user/device-info";
@@ -28,7 +29,7 @@ String changeMobileReq = "user/request/change-mobile";
 String changeMobile = "user/change-mobile";
 String forgotPw = "user/forgot/password";
 String changePass = "user/change-password";
-String fToken = "firebase-token";
+String fToken = "user/setfirebasetoken";
 String location = "location-update";
 String responder = "responder";
 String team = "team";

@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
 import 'package:lgu_bplo/controller/user_controller.dart';
+import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
@@ -199,31 +200,31 @@ class CreateAccountViewState extends State<CreateAccountView> {
   preRegister() {
     FocusScope.of(context).unfocus();
     if (_firstNameController.text.trim() == "") {
-      popupDialog(context, '', "Firstname must not be empty.");
+      popupDialog(context, NotifHeader.error, "Firstname must not be empty.");
       return;
     }
     if (_lastNameController.text.trim() == "") {
-      popupDialog(context, '', "Lastname must not be empty.");
+      popupDialog(context, NotifHeader.error, "Lastname must not be empty.");
       return;
     }
     if (_emailAddressController.text.trim() == "") {
-      popupDialog(context, '', "Email address must not be empty.");
+      popupDialog(context, NotifHeader.error, "Email address must not be empty.");
       return;
     }
     if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(_emailAddressController.text.trim())) {
-      popupDialog(context, '', "Invalid email address.");
+      popupDialog(context, NotifHeader.error, "Invalid email address.");
       return;
     }
     if (_contactNoController.text.trim() == "") {
-      popupDialog(context, '', "Contact number must not be empty.");
+      popupDialog(context, NotifHeader.error, "Contact number must not be empty.");
       return;
     }
     if (_contactNoController.text.trim().length != 9) {
-      popupDialog(context, '', "Invalid contact number.");
+      popupDialog(context, NotifHeader.error, "Invalid contact number.");
       return;
     }
     if (double.tryParse(_contactNoController.text) == null) {
-      popupDialog(context, '', "Invalid contact number.");
+      popupDialog(context, NotifHeader.error, "Invalid contact number.");
       return;
     }
 
@@ -234,11 +235,11 @@ class CreateAccountViewState extends State<CreateAccountView> {
           if (value["resultSuccess"]) {
             if (!value["emailAvailable"]) {
               EasyLoading.dismiss();
-              popupDialog(context, '', "Email address already exist.");
+              popupDialog(context, NotifHeader.error, "Email address already exist.");
               return;
             } else if (!value["mobileNoAvailable"]) {
               EasyLoading.dismiss();
-              popupDialog(context, '', "Mobile number already exist.");
+              popupDialog(context, NotifHeader.error, "Mobile number already exist.");
               return;
             } else {
               EasyLoading.dismiss();
@@ -253,11 +254,11 @@ class CreateAccountViewState extends State<CreateAccountView> {
             }
           } else {
             EasyLoading.dismiss();
-            popupDialog(context, '', "There is a problem in checking account availability. Please try again.");
+            popupDialog(context, NotifHeader.error, "There is a problem in checking account availability. Please try again.");
           }
         });
       } else {
-        popupDialog(context, "", "Please check your internet connection.");
+        popupDialog(context, NotifHeader.error, "Please check your internet connection.");
         return;
       }
     });

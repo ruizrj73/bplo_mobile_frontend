@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
 import 'package:lgu_bplo/model/user_info.dart';
+import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 
@@ -322,35 +323,35 @@ class UserProfileViewState extends State<UserProfileView> {
   registerAccount() {
     FocusScope.of(context).unfocus();
     if (_passwordController.text != _confirmPasswordController.text) {
-      popupDialog(context, '', "Password did not match.");
+      popupDialog(context, NotifHeader.error, "Password did not match.");
       return;
     }
     if (_passwordController.text.length < 8) {
-      popupDialog(context, '', "Password must be at least 8 characters.");
+      popupDialog(context, NotifHeader.error, "Password must be at least 8 characters.");
       return;
     }
     if (!_passwordController.text.contains(new RegExp('[a-z]'))) {
-      popupDialog(context, '', "Password must contain lowercase letters.");
+      popupDialog(context, NotifHeader.error, "Password must contain lowercase letters.");
       return;
     }
     if (!_passwordController.text.contains(new RegExp('[A-Z]'))) {
-      popupDialog(context, '', "Password must contain uppercase letters.");
+      popupDialog(context, NotifHeader.error, "Password must contain uppercase letters.");
       return;
     }
     if (!_passwordController.text.contains(new RegExp(r'[~!@#$%^&*()_+`{}|<>?;:./,=\-\[\]]'))) {
-      popupDialog(context, '', "Password must contain special characters.");
+      popupDialog(context, NotifHeader.error, "Password must contain special characters.");
       return;
     }
     if (_usernameController.text.trim() == "") {
-      popupDialog(context, '', "Mobile number is invalid.");
+      popupDialog(context, NotifHeader.error, "Mobile number is invalid.");
       return;
     }
     if (_usernameController.text.trim().length < 8) {
-      popupDialog(context, '', "Username must be at least 8 characters.");
+      popupDialog(context, NotifHeader.error, "Username must be at least 8 characters.");
       return;
     }
     if (_usernameController.text.contains(new RegExp(r'[~!@#$%^&*()_+`{}|<>?;:./,=\-\[\]]'))) {
-      popupDialog(context, '', "Username must not contain special characters.");
+      popupDialog(context, NotifHeader.error, "Username must not contain special characters.");
       return;
     }
 
@@ -361,7 +362,7 @@ class UserProfileViewState extends State<UserProfileView> {
           if (value["resultSuccess"]) {
             if (!value["usernameAvailable"]) {
               EasyLoading.dismiss();
-              popupDialog(context, '', "Username already exist.");
+              popupDialog(context, NotifHeader.error, "Username already exist.");
               return;
             } else {
               userController.setUsername(_usernameController.text);
@@ -391,11 +392,11 @@ class UserProfileViewState extends State<UserProfileView> {
             }
           } else {
             EasyLoading.dismiss();
-            popupDialog(context, '', "There is a problem in checking account availability. Please try again.");
+            popupDialog(context, NotifHeader.error, "There is a problem in checking account availability. Please try again.");
           }
         });
       } else {
-        popupDialog(context, "", "Please check your internet connection.");
+        popupDialog(context, NotifHeader.error, "Please check your internet connection.");
         return;
       }
     });

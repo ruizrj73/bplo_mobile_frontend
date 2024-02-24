@@ -1,6 +1,8 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
 import 'package:get/get.dart';
+import 'package:lgu_bplo/model/business_application_model.dart';
+import 'package:lgu_bplo/model/message_model.dart';
 import 'package:lgu_bplo/model/user_info.dart';
 
 class UserController extends GetxController {
@@ -18,6 +20,13 @@ class UserController extends GetxController {
   RxString userType = "".obs;
   RxString typeId = "".obs;
   RxString typeName = "".obs;
+  RxBool hasNewMessage = false.obs;
+  RxBool hasNewTransaction = false.obs;
+  Rx<BusinessApplication> activeBusinessApplication = BusinessApplication().obs;
+  Rx<BusinessApplicationList> listBusinessApplication = BusinessApplicationList().obs;
+  RxString applicationType = "New".obs;
+  Rx<MessageList> listMessages = MessageList().obs;
+  Rx<MessageModel> activeMessage = MessageModel().obs;
 
   setUserInfo(UserInfo _userInfo) => userInfo = _userInfo;
   setId(String _id) => id.value = _id;

@@ -308,56 +308,6 @@ class AccountProfileViewState extends State<AccountProfileView> {
               ),
             )
           ),
-          // SizedBox(
-          //   height: 8,
-          // ),
-          // DefaultTabController(
-          //   length: 2,
-          //   child: Column(
-          //     children: [
-          //       Stack(
-          //         children: [
-          //           Positioned.fill(
-          //             child: Container(
-          //               decoration: BoxDecoration(
-          //                 color: ThemeColor.secondaryText,
-          //                 border: Border(
-          //                   bottom: BorderSide(
-          //                     color: ThemeColor.disabled,
-          //                     width: 5,
-          //                   ),
-          //                 ),
-          //               )
-          //             )
-          //           ),
-          //           TabBar(
-          //             labelColor: ThemeColor.warning,
-          //             unselectedLabelColor: ThemeColor.disabled,
-          //             labelStyle: TextStyle(
-          //               fontFamily: "Poppins",
-          //               fontWeight: FontWeight.w800,
-          //               fontSize: 20,
-          //             ),
-          //             indicatorColor: ThemeColor.warning,
-          //             indicatorWeight: 5,
-          //             indicatorSize: TabBarIndicatorSize.label,
-          //             tabs: [
-          //               Tab(text: "Vehicle Info"),
-          //               Tab(text: "Team Members"),
-          //             ]
-          //           ),
-          //         ],
-          //       ),
-          //       SizedBox( 
-          //         height: MediaQuery.of(context).size.height - 440,
-          //         child: TabBarView(children: [
-          //           vehicleInfoView(),
-          //           teamMembersView(),
-          //         ]),
-          //       ),
-          //     ],
-          //   ),
-          // ),
         ],
       )
     );

@@ -18,6 +18,7 @@ class PageRoutes {
   static String BusinessPermitApplication = '/transaction/businesspermitapplication';
 
   static String AccountInbox = '/account/inbox';
+  static String MessageDetail = '/account/inbox/detail';
   static String AccountTransaction = '/account/transaction';
   static String AccountOption = '/account/option';
   static String HelpCenter = '/account/option/helpcenter';

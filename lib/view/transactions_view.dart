@@ -1,9 +1,11 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/model/business_application_model.dart';
 import 'package:lgu_bplo/utils/bottom_navigation_bar.dart';
+import 'package:lgu_bplo/utils/page_routes.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:shimmer/shimmer.dart';
@@ -18,6 +20,8 @@ class TransactionsView extends StatefulWidget {
 class TransactionsViewState extends State<TransactionsView> {
   bool isLoadingData = false;
   List<BusinessApplication> businessApplication = [];
+  Map<String, bool> viewApplicationShow = {"": false};
+  final arg = Get.arguments;
 
   @override
   void initState() {
@@ -29,6 +33,11 @@ class TransactionsViewState extends State<TransactionsView> {
   Future<void> loadData() async {
     setState(() {
       isLoadingData = true;
+      if (arg != null && arg["pendingId"] != null) {
+        viewApplicationShow = {arg["pendingId"]: true};
+      } else {
+        viewApplicationShow = {"": false};
+      }
     });
     Future.delayed(Duration(seconds: 2)).then((value) async {
       await getListTransactions().then((res) {
@@ -42,6 +51,9 @@ class TransactionsViewState extends State<TransactionsView> {
           businessApplication = businessApplicationTemp;
           isLoadingData = false;
         });
+
+        userController.hasNewTransaction.value = false;
+        userController.hasNewTransaction.refresh();
       });
     });
   }
@@ -103,8 +115,9 @@ class TransactionsViewState extends State<TransactionsView> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          backgroundColor: Color(0xffFFDE00),
-          color: Colors.black,
+          displacement: 10,
+          backgroundColor: ThemeColor.primary,
+          color: ThemeColor.primaryText,
           onRefresh: loadData,
           child: isLoadingData ? loadingBodyView() : bodyView()
         ),
@@ -116,145 +129,239 @@ class TransactionsViewState extends State<TransactionsView> {
     return SingleChildScrollView(
       physics: AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.all(16),
-      child: Column(
-        children: <Widget>[...(businessApplication ?? []).map((businessApp) =>
-          Column(
+      child: ConstrainedBox(
+        constraints: new BoxConstraints(
+          minHeight: 300,
+        ),
+        child: (businessApplication ?? []).isEmpty ?
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                width: MediaQuery.of(context).size.width,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: ThemeColor.primaryBg,
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                  border: Border.all(
-                    width: .5,
-                    color: ThemeColor.disabled,
+              SizedBox(
+                height: (MediaQuery.of(context).size.height - 450) / 2
+              ),
+              SizedBox(
+                width: 200,
+                height: 200,
+                child: SvgPicture.asset('assets/images/no-records.svg'),
+              ),
+              Text(
+                "No Records Found",
+                style: TextStyle(
+                    color: ThemeColor.secondary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(0, 1),
-                      blurRadius: 4,
-                      color: ThemeColor.secondary.withOpacity(0.3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container( // Transaction Status
-                      width: 50,
-                      height: 50,
-                      decoration: new BoxDecoration(
-                        color: ThemeColor.warning,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          "W",
-                          style: TextStyle(
-                            color: ThemeColor.primaryText,
-                            fontSize: 25,
-                            fontWeight: FontWeight.w800
+                textAlign: TextAlign.center
+              ),
+              SizedBox(height: 8),
+              Text(
+                "When you use our services, you'll see them here.",
+                style: TextStyle(
+                    color: ThemeColor.disabled,
+                    fontSize: 12,
+                  ),
+                textAlign: TextAlign.center
+              )
+            ],
+          ),
+        ) :
+        Column(
+          children: <Widget>[...(businessApplication ?? []).map((businessApp) =>
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  viewApplicationShow = {"": false};
+                });
+              },
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        width: MediaQuery.of(context).size.width,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: ThemeColor.primaryBg,
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          border: Border.all(
+                            width: .5,
+                            color: ThemeColor.disabled,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              offset: Offset(0, 1),
+                              blurRadius: 4,
+                              color: ThemeColor.secondary.withOpacity(0.3),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                    Container(
-                      width: MediaQuery.of(context).size.width - 100,
-                      padding: EdgeInsets.fromLTRB(8, 8, 0, 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "BIN: ${businessApp.transaction_no}", 
-                                style: TextStyle(
-                                  fontSize: 14, 
-                                  fontWeight: FontWeight.w800
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container( // Transaction Status
+                              width: 50,
+                              height: 50,
+                              decoration: new BoxDecoration(
+                                color: getStatusColor(businessApp.application_status),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  getStatus(businessApp.application_status).substring(0, 1),
+                                  style: TextStyle(
+                                    color: ThemeColor.primaryText,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w800
+                                  ),
                                 ),
                               ),
-                              InkWell(
-                                onTap: () {
-                                  
-                                },
-                                child: Container(
-                                  width: 60,
-                                  height: 18,
-                                  decoration: new BoxDecoration(
-                                    color: ThemeColor.warning,
-                                    shape: BoxShape.rectangle,
-                                    borderRadius: BorderRadius.all(Radius.circular(6))
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Wait List",
-                                      style: TextStyle(
-                                        color: ThemeColor.primaryText,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800
+                            ),
+                            Container(
+                              width: MediaQuery.of(context).size.width - 100,
+                              padding: EdgeInsets.fromLTRB(8, 8, 0, 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "BIN: ${businessApp.transaction_no}", 
+                                        style: TextStyle(
+                                          fontSize: 14, 
+                                          fontWeight: FontWeight.w800
+                                        ),
                                       ),
+                                      InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            if (viewApplicationShow[businessApp.id] != true) {
+                                              viewApplicationShow = {"": false};
+                                              viewApplicationShow[businessApp.id] = true;
+                                            } else {
+                                              viewApplicationShow = {"": false};
+                                            }
+                                          });
+                                        },
+                                        child: Container(
+                                          width: 75,
+                                          height: 18,
+                                          decoration: new BoxDecoration(
+                                            color: getStatusColor(businessApp.application_status),
+                                            shape: BoxShape.rectangle,
+                                            borderRadius: BorderRadius.all(Radius.circular(6))
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              getStatus(businessApp.application_status),
+                                              style: TextStyle(
+                                                color: ThemeColor.primaryText,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w800
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    businessApp.business_name, 
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12, 
+                                      fontWeight: FontWeight.w800,
+                                      color: ThemeColor.disabledText
                                     ),
                                   ),
-                                ),
+                                  Text(
+                                    getRemarks(businessApp.application_status), 
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 10, 
+                                      color: ThemeColor.disabledText
+                                    ),
+                                  ),
+                                  RichText(
+                                    textAlign: TextAlign.left,
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: "You are marked as ",
+                                          style: TextStyle(
+                                            color: ThemeColor.secondary,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: businessApp.application_status,
+                                          style: TextStyle(
+                                            color: ThemeColor.warning,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          Text(
-                            businessApp.business_name, 
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12, 
-                              fontWeight: FontWeight.w800,
-                              color: ThemeColor.disabledText
                             ),
-                          ),
-                          Text(
-                            "Documentary requirements still waiting for approval", 
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 10, 
-                              color: ThemeColor.disabledText
-                            ),
-                          ),
-                          RichText(
-                            textAlign: TextAlign.left,
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text:
-                                      'You are marked as ',
-                                  style: TextStyle(
-                                    color: ThemeColor.secondary,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text:
-                                      'Waiting List',
-                                  style: TextStyle(
-                                    color: ThemeColor.warning,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                          ],
+                        ),
+                      ),
+                      viewApplicationShow[businessApp.id] == true ?
+                      Positioned(
+                        top: 30,
+                        right: 8,
+                        child: InkWell(
+                          onTap: () {
+                            userController.applicationType.value = businessApp.application_type;
+                            userController.activeBusinessApplication.value = businessApp;
+                            Get.toNamed(PageRoutes.BusinessPermitApplication);
+                          },
+                          child: Container(
+                            width: 90,
+                            height: 18,
+                            decoration: new BoxDecoration(
+                              color: ThemeColor.primaryBg,
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.all(Radius.circular(6)),
+                              boxShadow: [
+                                BoxShadow(
+                                  blurRadius: 2,
+                                  color: ThemeColor.disabled,
+                                  offset: Offset(1,1)
                                 ),
                               ],
                             ),
+                            child: Center(
+                              child: Text(
+                                "View Application",
+                                style: TextStyle(
+                                  color: ThemeColor.disabledText,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800
+                                ),
+                              ),
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                        ),
+                      ) : Container(),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                ],
               ),
-              SizedBox(height: 8),
-            ],
-          )
-        ).toList()]
+            )
+          ).toList()]
+        ),
       ),
     );
   }
@@ -276,5 +383,128 @@ class TransactionsViewState extends State<TransactionsView> {
         ),
       ),
     );
+  }
+  
+  String getStatus(String status) {
+    switch (status) {
+      case "Waiting List":
+        return "Wait List";
+        break;
+      case "Pending Application":
+        return "Pending";
+        break;
+      case "For Verification":
+        return "Verification";
+        break;
+      case "For Endorsement":
+        return "Endorsement";
+        break;
+      case "For Payment":
+        return "Payment";
+        break;
+      case "Paid":
+        return "Paid";
+        break;
+      case "For Approval":
+        return "Approval";
+        break;
+      case "For Issuance":
+        return "Issuance";
+        break;
+      case "License Issued":
+        return "Issued";
+        break;
+      case "License Declined":
+        return "Declined";
+        break;
+      case "Cancel Application":
+        return "Cancelled";
+        break;
+      default:
+        return "";
+        break;
+    }
+  }
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case "Waiting List":
+        return ThemeColor.warning;
+        break;
+      case "Pending Application":
+        return Colors.amber;
+        break;
+      case "For Verification":
+        return ThemeColor.primary;
+        break;
+      case "For Endorsement":
+        return ThemeColor.primary;
+        break;
+      case "For Payment":
+        return ThemeColor.primary;
+        break;
+      case "Paid":
+        return ThemeColor.primary;
+        break;
+      case "For Approval":
+        return ThemeColor.primary;
+        break;
+      case "For Issuance":
+        return ThemeColor.primary;
+        break;
+      case "License Issued":
+        return ThemeColor.primary;
+        break;
+      case "License Declined":
+        return ThemeColor.primary;
+        break;
+      case "Cancel Application":
+        return ThemeColor.primary;
+        break;
+      default:
+        return ThemeColor.primary;
+        break;
+    }
+  }
+
+  String getRemarks(String status) {
+    switch (status) {
+      case "Waiting List":
+        return "Documentary requirements still waiting for approval";
+        break;
+      case "Pending Application":
+        return "Application is Approved and waiting for complete requirements";
+        break;
+      case "For Verification":
+        return "Application is now in verification stage";
+        break;
+      case "For Endoresment":
+        return "Your application is endorsed to the specific person";
+        break;
+      case "For Payment":
+        return "Your application is waiting for payment";
+        break;
+      case "Paid":
+        return "Your application is now paid";
+        break;
+      case "For Approval":
+        return "Your application is waiting for approval of specific person";
+        break;
+      case "For Issuance":
+        return "Your application is now ready for issuance";
+        break;
+      case "License Issued":
+        return "Business Permit issued";
+        break;
+      case "License Declined":
+        return "Business Permit application declined";
+        break;
+      case "Cancel Application":
+        return "Business Permit application cancelled";
+        break;
+      default:
+        return "";
+        break;
+    }
   }
 }

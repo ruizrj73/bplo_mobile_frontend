@@ -8,7 +8,11 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/device_info_controller.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
+import 'package:lgu_bplo/model/business_application_model.dart';
+import 'package:lgu_bplo/model/message_model.dart';
 import 'package:lgu_bplo/utils/env.dart';
+import 'package:lgu_bplo/utils/firebase_messaging_handler.dart';
+import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
@@ -26,6 +30,7 @@ class LoginView extends StatefulWidget {
 
 class LoginViewState extends State<LoginView> {
   final NetworkConnectionController networkConnectionController = Get.find();
+  final FirebaseMessagingHandler firebaseMessagingHandler = Get.find();
   final AppVersionHandler appVersionHandler = Get.find();
   final DeviceInfoController deviceInfoController = Get.find();
   final AccountController accountController = Get.find();
@@ -316,11 +321,11 @@ class LoginViewState extends State<LoginView> {
   login() async {
     FocusScope.of(context).unfocus();
     if (_usernameController.text == "") {
-      popupDialog(context, '', 'Please enter username.');
+      popupDialog(context, 'Error', 'Please enter username.');
       return;
     }
     if (_userPasswordController.text == "") {
-      popupDialog(context, '', 'Please enter password.');
+      popupDialog(context, 'Error', 'Please enter password.');
       return;
     }
     networkConnectionController.checkConnectionStatus().then((connResult) async {
@@ -334,16 +339,49 @@ class LoginViewState extends State<LoginView> {
             accountController.saveUserId(userController.getId());
             accountController.savePassword(_userPasswordController.text);
 
+            firebaseMessagingHandler.saveToken();
+            initTransaction();
+            initMessages();
+
             Get.toNamed(PageRoutes.Home);
           } else {
-            popupDialog(context, '', 'Username/Password is incorrect.');
+            popupDialog(context, NotifHeader.error, 'Username/Password is incorrect.');
           }
           EasyLoading.dismiss();
         });
       } else {
-        popupDialog(context, "", "Please check your internet connection.");
+        popupDialog(context, NotifHeader.error, "Please check your internet connection.");
         return;
       }
+    });
+  }
+
+  initTransaction() async {
+    await getListTransactions().then((res) {
+      List<BusinessApplication> businessApplicationTemp = [];
+      if (res != null) {
+        res.forEach((p) {
+          businessApplicationTemp.add(BusinessApplication.fromJson(p));
+        });
+      }
+      userController.listBusinessApplication.value.application = businessApplicationTemp;
+      userController.listBusinessApplication.refresh();
+    });
+  }
+
+  initMessages() async {
+    await getInbox().then((res) {
+      List<MessageModel> inboxTempData = [];
+      if (res != null) {
+        res.forEach((p) {
+          inboxTempData.add(MessageModel.fromJson(p));
+        });
+      }
+      userController.listMessages.value.messages = inboxTempData;
+      userController.listMessages.refresh();
+
+      userController.hasNewMessage.value = (userController.listMessages.value.messages ?? []).where((m) => m.messageState == "Unread").isNotEmpty;
+      userController.hasNewMessage.refresh();
     });
   }
 
@@ -374,7 +412,7 @@ class LoginViewState extends State<LoginView> {
               if (value == "Success") {
                 userController.clearState();
               } else {
-                popupDialog(context, "", "There's a problem in registering account.");
+                popupDialog(context, NotifHeader.error, "There's a problem in registering account.");
               }
             });
           } else {

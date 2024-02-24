@@ -5,14 +5,62 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:shimmer/shimmer.dart';
+
+Widget getDialogIcon(String state) {
+  switch (state) {
+    case NotifHeader.success:
+      return Icon(Feather.check_circle, size: 30, color: getHeaderColor(state));
+      break;
+    case NotifHeader.error:
+      return Icon(Feather.alert_triangle, size: 30, color: getHeaderColor(state));
+      break;
+    case NotifHeader.information:
+      return Icon(Feather.alert_circle, size: 30, color: getHeaderColor(state));
+      break;
+    case NotifHeader.confirm:
+      return Icon(Feather.help_circle, size: 30, color: getHeaderColor(state));
+      break;
+    default:
+      return Icon(Feather.bell, size: 30, color: getHeaderColor(state));
+      break;
+  }
+}
+
+Color getHeaderColor(String state) {
+  switch (state) {
+    case NotifHeader.success:
+      return ThemeColor.success;
+      break;
+    case NotifHeader.error:
+      return ThemeColor.warning;
+      break;
+    case NotifHeader.information:
+    case NotifHeader.confirm:
+      return ThemeColor.primary;
+      break;
+    default:
+      return ThemeColor.secondary;
+      break;
+  }
+}
 
 Future<String> popupDialog(BuildContext context, String headerText, message) {
   return showDialog<String>(
     context: context,
     builder: (BuildContext context) => AlertDialog(
-      title: Container(),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16))
+      ),
+      title: Row(
+        children: [
+          getDialogIcon(headerText),
+          SizedBox(width: 8),
+          Text(headerText, style: TextStyle(color: getHeaderColor(headerText))),
+        ],
+      ),
       content: SizedBox(
         width: MediaQuery.of(context).size.width - 80,
         child: Text(
@@ -25,19 +73,21 @@ Future<String> popupDialog(BuildContext context, String headerText, message) {
         ),
       ),
       actions: <Widget>[
-        Center(
-          child: TextButton(
-            style: TextButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+        Container(
+          padding: EdgeInsets.only(right: 16, bottom: 8),
+          child: Align(
+            alignment: Alignment.topRight,
+            child: InkWell(
+              onTap: () => Navigator.pop(context, 'OK'),
+              child: Text(
+                "OK", 
+                style: TextStyle(
+                  color: getHeaderColor(headerText), 
+                  fontWeight: FontWeight.w800, 
+                  decoration: TextDecoration.underline
+                )
               ),
-              backgroundColor: ThemeColor.primaryNavbarBg,
-              fixedSize: Size(MediaQuery.of(context).size.width, 50),
-              foregroundColor: ThemeColor.primaryText,
-              shadowColor: Colors.black
             ),
-            onPressed: () => Navigator.pop(context, 'OK'),
-            child: const Text('OK', style: TextStyle(fontWeight: FontWeight.w800))
           ),
         )
       ],
@@ -104,7 +154,16 @@ Future<String> popupDialogYesNo(BuildContext context, String headerText, message
   return showDialog<String>(
     context: context,
     builder: (BuildContext context) => AlertDialog(
-      title: Container(),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16))
+      ),
+      title: Row(
+        children: [
+          getDialogIcon(headerText),
+          SizedBox(width: 8),
+          Text(headerText, style: TextStyle(color: getHeaderColor(headerText))),
+        ],
+      ),
       content: SizedBox(
         width: MediaQuery.of(context).size.width - 80,
         child: Text(
@@ -117,39 +176,46 @@ Future<String> popupDialogYesNo(BuildContext context, String headerText, message
         ),
       ),
       actions: <Widget>[
-        Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              TextButton(
-                style: TextButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              padding: EdgeInsets.only(right: 16, bottom: 8),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: InkWell(
+                  onTap: () => Navigator.pop(context, 'No'),
+                  child: Text(
+                    "NO", 
+                    style: TextStyle(
+                      color: ThemeColor.warning, 
+                      fontWeight: FontWeight.w800, 
+                      decoration: TextDecoration.underline
+                    )
                   ),
-                  backgroundColor: ThemeColor.primaryBg,
-                  fixedSize: Size(130, 50),
-                  foregroundColor: Colors.black,
-                  shadowColor: Colors.black
                 ),
-                onPressed: () => Navigator.pop(context, 'No'),
-                child: const Text('No', style: TextStyle(fontWeight: FontWeight.w800))
               ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+            ),
+            SizedBox(width: 16),
+            Container(
+              padding: EdgeInsets.only(right: 16, bottom: 8),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: InkWell(
+                  onTap: () => Navigator.pop(context, 'Yes'),
+                  child: Text(
+                    "YES", 
+                    style: TextStyle(
+                      color: getHeaderColor(headerText), 
+                      fontWeight: FontWeight.w800, 
+                      decoration: TextDecoration.underline
+                    )
                   ),
-                  backgroundColor: ThemeColor.primaryNavbarBg,
-                  fixedSize: Size(130, 50),
-                  foregroundColor: ThemeColor.primaryText,
-                  shadowColor: Colors.black
                 ),
-                onPressed: () => Navigator.pop(context, 'Yes'),
-                child: const Text('Yes', style: TextStyle(fontWeight: FontWeight.w800))
-              )
-            ],
-          ),
-        )
+              ),
+            ),
+          ],
+        ),
       ],
     ),
   );

@@ -24,9 +24,9 @@ Future<void> popupDialogConsoleLogs(BuildContext context, {String buttonText}) {
     barrierDismissible: false,
     builder: (BuildContext context) => AlertDialog(
       backgroundColor: ThemeColor.secondary,
-      titlePadding: EdgeInsets.fromLTRB(16, 16, 16, 4),
-      contentPadding: EdgeInsets.fromLTRB(16, 4, 16, 4),
-      actionsPadding: EdgeInsets.fromLTRB(16, 4, 16, 16),
+      titlePadding: EdgeInsets.fromLTRB(8, 8, 8, 4),
+      contentPadding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+      actionsPadding: EdgeInsets.fromLTRB(8, 4, 8, 8),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -72,8 +72,8 @@ Future<void> popupDialogConsoleLogs(BuildContext context, {String buttonText}) {
                     ),
                   ),
                   controller: _consoleLogsController,
-                  style: TextStyle(color: ThemeColor.secondaryText),
-                  minLines: 46,
+                  style: TextStyle(color: ThemeColor.secondaryText, fontSize: 12),
+                  minLines: 40,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
                   readOnly: true,

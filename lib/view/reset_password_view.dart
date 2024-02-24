@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
+import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 
 import '../utils/popup_dialog.dart';
@@ -218,23 +219,23 @@ class ResetPasswordViewState extends State<ResetPasswordView> {
   changePassword() {
     FocusScope.of(context).unfocus();
     if (_newPasswordController.text != _confirmPasswordController.text) {
-      popupDialog(context, '', 'New password did not match.');
+      popupDialog(context, NotifHeader.error, 'New password did not match.');
       return;
     }
     if (_newPasswordController.text.length < 8) {
-      popupDialog(context, '', "Password must be at least 8 characters.");
+      popupDialog(context, NotifHeader.error, "Password must be at least 8 characters.");
       return;
     }
     if (!_newPasswordController.text.contains(new RegExp('[a-z]'))) {
-      popupDialog(context, '', "Password must contain lowercase letters.");
+      popupDialog(context, NotifHeader.error, "Password must contain lowercase letters.");
       return;
     }
     if (!_newPasswordController.text.contains(new RegExp('[A-Z]'))) {
-      popupDialog(context, '', "Password must contain uppercase letters.");
+      popupDialog(context, NotifHeader.error, "Password must contain uppercase letters.");
       return;
     }
     if (!_newPasswordController.text.contains(new RegExp(r'[~!@#$%^&*()_+`{}|<>?;:./,=\-\[\]]'))) {
-      popupDialog(context, '', "Password must contain special characters.");
+      popupDialog(context, NotifHeader.error, "Password must contain special characters.");
       return;
     }
     networkConnectionController.checkConnectionStatus().then((connResult) {
@@ -243,16 +244,16 @@ class ResetPasswordViewState extends State<ResetPasswordView> {
         resetPassword(userController.getId(), _newPasswordController.text).then((value) {
           if (value == "Success") {
             EasyLoading.dismiss();
-            popupDialog(context, '', 'Your password has been successfully updated!').then((value) {
+            popupDialog(context, NotifHeader.success, 'Your password has been successfully updated!').then((value) {
               Get.back(result: true);
             });
           } else {
             EasyLoading.dismiss();
-            popupDialog(context, '', 'Error occurred while updating your password. Please try again.');
+            popupDialog(context, NotifHeader.error, 'Error occurred while updating your password. Please try again.');
           }
         });
       } else {
-        popupDialog(context, "", "Please check your internet connection.");
+        popupDialog(context, NotifHeader.error, "Please check your internet connection.");
         return;
       }
     });

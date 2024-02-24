@@ -7,6 +7,16 @@ class AccountController extends GetxController {
   GetStorage storage = GetStorage();
   RxBool isLoggedIn = false.obs;
 
+  void saveFirebaseToken(String token) {
+    storage.write('FirebaseToken', token);
+  }
+
+  String getFirebaseToken() {
+    String token = "";
+    token = storage.hasData("FirebaseToken") ? storage.read("FirebaseToken") : "";
+    return token;
+  }
+
   void saveAccessToken(String token) {
     storage.write('AccessToken', token);
   }

@@ -1,4 +1,4 @@
-package com.example.lgu_bplo
+package com.lgu_system.bpls
 
 import io.flutter.embedding.android.FlutterActivity
 

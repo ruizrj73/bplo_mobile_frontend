@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "652497796818",
+    "project_id": "emergency-rapid-response-4e689",
+    "storage_bucket": "emergency-rapid-response-4e689.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:652497796818:android:0eb1858b800a5779def70b",
+        "android_client_info": {
+          "package_name": "com.example.emergency_responder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "652497796818-esnn89qaoaqht1lmfj5ipbpde6cfqasu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_VF30ezrSGjdeQctMGZdr3Tuup64xCoQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "652497796818-esnn89qaoaqht1lmfj5ipbpde6cfqasu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "652497796818-qe72rqamlhjh5731egdmhm9ua5ibs43v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.emergencyResponder"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:652497796818:android:abb1c3f04c2b357bdef70b",
+        "android_client_info": {
+          "package_name": "com.lgu_system.bpls"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "652497796818-esnn89qaoaqht1lmfj5ipbpde6cfqasu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_VF30ezrSGjdeQctMGZdr3Tuup64xCoQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "652497796818-esnn89qaoaqht1lmfj5ipbpde6cfqasu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "652497796818-qe72rqamlhjh5731egdmhm9ua5ibs43v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.emergencyResponder"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -5,14 +5,17 @@ import 'package:lgu_bplo/controller/main_controller.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
 import 'package:lgu_bplo/model/application_status_model.dart';
 import 'package:lgu_bplo/model/application_type_model.dart';
+import 'package:lgu_bplo/model/business_application_model.dart';
 import 'package:lgu_bplo/model/business_type_model.dart';
+import 'package:lgu_bplo/model/message_model.dart';
 import 'package:lgu_bplo/model/payment_mode_model.dart';
+import 'package:lgu_bplo/utils/firebase_messaging_handler.dart';
+import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:restart_app/restart_app.dart';
 
 import '../controller/account_controller.dart';
 import '../utils/snackbar_dialog.dart';
@@ -26,13 +29,13 @@ class AppLoadView extends StatefulWidget {
 
 class AppLoadViewState extends State<AppLoadView> {
   final NetworkConnectionController networkConnectionController = Get.find();
+  final FirebaseMessagingHandler firebaseMessagingHandler = Get.find();
   final AccountController accountController = Get.find();
   final MainController mainController = Get.find();
 
   @override
   void initState() {
     loadApp();
-    initSetup();
     super.initState();
   }
 
@@ -44,6 +47,7 @@ class AppLoadViewState extends State<AppLoadView> {
   loadApp() {
     Future.delayed(Duration(seconds: 5), () {
       initializeUser();
+      initSetup();
     });
   }
 
@@ -64,6 +68,9 @@ class AppLoadViewState extends State<AppLoadView> {
               Get.offAllNamed(PageRoutes.Login);
             } else {
               showSnackbar("Welcome", userController.getFullName());
+              firebaseMessagingHandler.saveToken();
+              initTransaction();
+              initMessages();
               Get.toNamed(PageRoutes.Home);
             }
           });
@@ -106,9 +113,38 @@ class AppLoadViewState extends State<AppLoadView> {
           }
         });
       } else {
-        popupDialog(context, "", "Please check your internet connection.");
+        popupDialog(context, NotifHeader.error, "Please check your internet connection.");
         return;
       }
+    });
+  }
+
+  initTransaction() async {
+    await getListTransactions().then((res) {
+      List<BusinessApplication> businessApplicationTemp = [];
+      if (res != null) {
+        res.forEach((p) {
+          businessApplicationTemp.add(BusinessApplication.fromJson(p));
+        });
+      }
+      userController.listBusinessApplication.value.application = businessApplicationTemp;
+      userController.listBusinessApplication.refresh();
+    });
+  }
+
+  initMessages() async {
+    await getInbox().then((res) {
+      List<MessageModel> inboxTempData = [];
+      if (res != null) {
+        res.forEach((p) {
+          inboxTempData.add(MessageModel.fromJson(p));
+        });
+      }
+      userController.listMessages.value.messages = inboxTempData;
+      userController.listMessages.refresh();
+
+      userController.hasNewMessage.value = (userController.listMessages.value.messages ?? []).where((m) => m.messageState == "Unread").isNotEmpty;
+      userController.hasNewMessage.refresh();
     });
   }
 

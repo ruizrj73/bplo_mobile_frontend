@@ -1,13 +1,21 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables, no_leading_underscores_for_local_identifiers
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
+import 'package:lgu_bplo/controller/network_connection_controller.dart';
+import 'package:lgu_bplo/model/application_status_model.dart';
+import 'package:lgu_bplo/model/application_type_model.dart';
+import 'package:lgu_bplo/model/business_application_model.dart';
+import 'package:lgu_bplo/model/business_type_model.dart';
+import 'package:lgu_bplo/model/payment_mode_model.dart';
 import 'package:lgu_bplo/utils/bottom_navigation_bar.dart';
 import 'package:lgu_bplo/utils/env.dart';
+import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
+import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 
 class HomeView extends StatefulWidget {
@@ -18,6 +26,7 @@ class HomeView extends StatefulWidget {
 }
 
 class HomeViewState extends State<HomeView> {
+  final NetworkConnectionController networkConnectionController = Get.find();
   bool isNewSelected = false;
   bool isRenewSelected = false;
   @override
@@ -34,6 +43,44 @@ class HomeViewState extends State<HomeView> {
           isNewSelected = false;
           isRenewSelected = false;
         });
+      }
+    });
+  }
+
+  initSetup() async {
+    networkConnectionController.checkConnectionStatus().then((connResult) async {
+      if (connResult) {
+        await getListPaymentMode().then((res) {
+          if (res != null) {
+            res.forEach((p) {
+              mainController.listPaymentMode.add(PaymentModeModel.fromJson(p));
+            });
+          }
+        });
+        await getListApplicationStatus().then((res) {
+          if (res != null) {
+            res.forEach((a) {
+              mainController.listApplicationStatus.add(ApplicationStatusModel.fromJson(a));
+            });
+          }
+        });
+        await getListApplicationType().then((res) {
+          if (res != null) {
+            res.forEach((a) {
+              mainController.listApplicationType.add(ApplicationTypeModel.fromJson(a));
+            });
+          }
+        });
+        await getListBusinessType().then((res) {
+          if (res != null) {
+            res.forEach((b) {
+              mainController.listBusinessType.add(BusinessTypeModel.fromJson(b));
+            });
+          }
+        });
+      } else {
+        popupDialog(context, NotifHeader.error, "Please check your internet connection.");
+        return;
       }
     });
   }
@@ -191,6 +238,19 @@ class HomeViewState extends State<HomeView> {
                       setState(() {
                         isNewSelected = !isNewSelected;
                         isRenewSelected = false;
+                        if (isNewSelected) {
+                          List<BusinessApplication> _businessApplication = userController.listBusinessApplication.value.application.where((app) => app.application_status == "Pending Application").toList();
+                          if (_businessApplication.isNotEmpty) {
+                            popupDialogYesNo(context, NotifHeader.confirm, "Pending Business Permit found. Do you want to continue?").then((res) {
+                              if (res == "No") {
+                                // userController.applicationType.value = _businessApplication.application_type;
+                                // userController.activeBusinessApplication.value = _businessApplication;
+                                mainController.bottomNavIndex.value = 2;
+                                Get.toNamed(PageRoutes.AccountTransaction, arguments: {"pendingId": _businessApplication.first.id});
+                              }
+                            });
+                          }
+                        }
                       });
                     },
                     child: Container(
@@ -283,7 +343,7 @@ class HomeViewState extends State<HomeView> {
                   ),
                 ],
               ),
-              SizedBox(height: 130),
+              SizedBox(height: 110),
               Center(
                 child: TextButton(
                   style: TextButton.styleFrom(
@@ -316,7 +376,14 @@ class HomeViewState extends State<HomeView> {
 
   businessApplicationProcess() {
     if (isNewSelected || isRenewSelected) {
-      Get.toNamed(PageRoutes.BusinessPermitApplication, arguments: [isNewSelected ? "New" : isRenewSelected ? "Renew" : "New"]);
+      userController.activeBusinessApplication.value = BusinessApplication();
+      userController.applicationType.value = isNewSelected ? "New" : isRenewSelected ? "Renew" : "New";
+      Get.toNamed(PageRoutes.BusinessPermitApplication).then((value) {
+        setState(() {
+          isNewSelected = false;
+          isRenewSelected = false;
+        });
+      });
     }
   }
 }

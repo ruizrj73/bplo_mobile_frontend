@@ -4,6 +4,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/main_controller.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
+import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 
 MainController mainController = Get.find();
@@ -19,11 +20,47 @@ Widget bottomNavigationView(BuildContext context) {
         label: 'Home',
       ),
       BottomNavigationBarItem(
-        icon: Icon(MaterialIcons.mail, size: 25),
+        icon: Stack(
+          children: [
+            Icon(MaterialIcons.mail, size: 25),
+            Positioned(
+              right: 0,
+              child: Obx(() => Container(
+                padding: EdgeInsets.all(1),
+                decoration: BoxDecoration(
+                  color: userController.hasNewMessage.value ? ThemeColor.warning : Colors.transparent,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                constraints: BoxConstraints(
+                  minWidth: 8,
+                  minHeight: 8,
+                ),
+              )),
+            ),
+          ],
+        ),
         label: 'Inbox',
       ),
       BottomNavigationBarItem(
-        icon: Icon(MaterialIcons.description, size: 25),
+        icon: Stack(
+          children: [
+            Icon(MaterialIcons.description, size: 25),
+            Positioned(
+              right: 0,
+              child: Obx(() => Container(
+                padding: EdgeInsets.all(1),
+                decoration: BoxDecoration(
+                  color: userController.hasNewTransaction.value ? ThemeColor.warning : Colors.transparent,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                constraints: BoxConstraints(
+                  minWidth: 8,
+                  minHeight: 8,
+                ),
+              )),
+            ),
+          ],
+        ),
         label: 'Transaction',
       ),
       BottomNavigationBarItem(
