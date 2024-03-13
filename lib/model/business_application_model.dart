@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_new, prefer_collection_literals, non_constant_identifier_names
 
+import 'dart:typed_data';
+
 class BusinessApplicationList {
   List<BusinessApplication> application = [];
 
@@ -46,6 +48,7 @@ class BusinessApplication {
   List<BusinessAddressInfoModel> business_address_info = [];
   List<BusinessOwnerAddressInfoModel> business_owner_address_info = [];
   BusinessOperationInfoModel business_operation_info;
+  List<LineOfBusinessModel> line_of_business = [];
 
   BusinessApplication({
     this.id,
@@ -69,6 +72,7 @@ class BusinessApplication {
     this.business_address_info,
     this.business_owner_address_info,
     this.business_operation_info,
+    this.line_of_business,
   });
 
   BusinessApplication.fromJson(Map<String, dynamic> json) {
@@ -81,7 +85,7 @@ class BusinessApplication {
     tax_year = json["tax_year"];
     organization_type = json["organization_type"];
     business_name = json["business_name"];
-    trade_name = json["business_address"];
+    trade_name = json["trade_name"];
     tin_no = json["tin_no"];
     dtiseccda_registration_date = json["dtiseccda_registration_date"];
     dtiseccda_registration_no = json["dtiseccda_registration_no"];
@@ -126,6 +130,13 @@ class BusinessApplication {
     if (json['business_operation_info'] != null) {
       business_operation_info = BusinessOperationInfoModel.fromJson(json['business_operation_info']);
     }
+
+    if (json['line_of_business'] != null) {
+      line_of_business = [];
+      json['line_of_business'].forEach((a) {
+        line_of_business.add(LineOfBusinessModel.fromJson(a));
+      });
+    }
   }
 
   Map<String, dynamic> toJson({bool forLocalDb = false}) {
@@ -145,34 +156,41 @@ class BusinessApplication {
     data["dtiseccda_registration_no"] = dtiseccda_registration_no;
     data["remarks"] = remarks;
     data["application_status"] = application_status;
-    
-    if (attachment != null) {
-      data['attachment'] =
-          attachment.map((v) => v.toJson()).toList();
-    }
-    
-    if (business_owner_info != null) {
-      data['business_owner_info'] =
-          business_owner_info.map((v) => v.toJson()).toList();
-    }
-    
-    if (business_contact_info != null) {
-      data['business_contact_info'] =
-          business_contact_info.map((v) => v.toJson()).toList();
-    }
-    
-    if (business_address_info != null) {
-      data['business_address_info'] =
-          business_address_info.map((v) => v.toJson()).toList();
-    }
-    
-    if (business_owner_address_info != null) {
-      data['business_owner_address_info'] =
-          business_owner_address_info.map((v) => v.toJson()).toList();
-    }
-    
-    if (business_operation_info != null) {
-      data['business_operation_info'] = business_operation_info.toJson();
+
+    if (!forLocalDb) {
+      if (attachment != null) {
+        data['attachment'] =
+            attachment.map((v) => v.toJson()).toList();
+      }
+      
+      if (business_owner_info != null) {
+        data['business_owner_info'] =
+            business_owner_info.map((v) => v.toJson()).toList();
+      }
+      
+      if (business_contact_info != null) {
+        data['business_contact_info'] =
+            business_contact_info.map((v) => v.toJson()).toList();
+      }
+      
+      if (business_address_info != null) {
+        data['business_address_info'] =
+            business_address_info.map((v) => v.toJson()).toList();
+      }
+      
+      if (business_owner_address_info != null) {
+        data['business_owner_address_info'] =
+            business_owner_address_info.map((v) => v.toJson()).toList();
+      }
+      
+      if (business_operation_info != null) {
+        data['business_operation_info'] = business_operation_info.toJson();
+      }
+      
+      if (line_of_business != null) {
+        data['line_of_business'] =
+            line_of_business.map((v) => v.toJson()).toList();
+      }
     }
 
     return data;
@@ -187,6 +205,7 @@ class AttachmentModel {
   String file_url = "";
   String remarks = "";
   String status = "";
+  Uint8List xfile;
 
   AttachmentModel(
     this.id,
@@ -196,6 +215,7 @@ class AttachmentModel {
     this.file_url,
     this.remarks,
     this.status,
+    this.xfile,
   );
 
   AttachmentModel.fromJson(Map<String, dynamic> json) {
@@ -206,9 +226,10 @@ class AttachmentModel {
     file_url = json["file_url"];
     remarks = json["remarks"];
     status = json["status"];
+    xfile = json["xfile"];
   }
 
-  Map<String, dynamic> toJson({bool forLocalDb = false}) {
+  Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data["id"] = id;
     data["file_type"] = file_type;
@@ -217,6 +238,7 @@ class AttachmentModel {
     data["file_url"] = file_url;
     data["remarks"] = remarks;
     data["status"] = status;
+    data["xfile"] = xfile;
     return data;
   }
 }
@@ -250,7 +272,7 @@ class BusinessOwnerInfoModel {
     remarks = json["remarks"];
   }
 
-  Map<String, dynamic> toJson({bool forLocalDb = false}) {
+  Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data["id"] = id;
     data["first_name"] = first_name;
@@ -286,7 +308,7 @@ class BusinessContactInfoModel {
     remarks = json["remarks"];
   }
 
-  Map<String, dynamic> toJson({bool forLocalDb = false}) {
+  Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data["id"] = id;
     data["mobile_number"] = mobile_number;
@@ -344,7 +366,7 @@ class BusinessAddressInfoModel {
     remarks = json["remarks"];
   }
 
-  Map<String, dynamic> toJson({bool forLocalDb = false}) {
+  Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data["id"] = id;
     data["region"] = region;
@@ -410,7 +432,7 @@ class BusinessOwnerAddressInfoModel {
     remarks = json["remarks"];
   }
 
-  Map<String, dynamic> toJson({bool forLocalDb = false}) {
+  Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data["id"] = id;
     data["region"] = region;
@@ -475,13 +497,13 @@ class BusinessOperationInfoModel {
   BusinessOperationInfoModel.fromJson(Map<String, dynamic> json) {
     id = json["id"];
     business_activity = json["business_activity"];
-    business_area = double.parse(json["business_area"].toString());
-    total_floor_area = double.parse(json["total_floor_area"].toString());
+    business_area = double.parse((json["business_area"] ?? 0).toString());
+    total_floor_area = double.parse((json["total_floor_area"] ?? 0).toString());
     number_male_employee = json["number_male_employee"];
     number_female_employee = json["number_female_employee"];
     total_number_employee_establishment = json["total_number_employee_establishment"];
     total_number_employee_residing_lgu = json["total_number_employee_residing_lgu"];
-    has_delivery_vehicles = json["has_delivery_vehicles"];
+    has_delivery_vehicles = json["has_delivery_vehicles"] == "1" || json["has_delivery_vehicles"].toString() == "true" ? true : false;
     total_delivery_vehicle_van_truck = json["total_delivery_vehicle_van_truck"];
     total_delivery_vehicle_motorcycle = json["total_delivery_vehicle_motorcycle"];
     place_owned_rented = json["place_owned_rented"];
@@ -494,7 +516,7 @@ class BusinessOperationInfoModel {
     remarks = json["remarks"];
   }
 
-  Map<String, dynamic> toJson({bool forLocalDb = false}) {
+  Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data["id"] = id;
     data["business_activity"] = business_activity;
@@ -514,6 +536,60 @@ class BusinessOperationInfoModel {
     data["community_tax_certificate"] = community_tax_certificate;
     data["barangay_micro_business_enterprise_registered"] = barangay_micro_business_enterprise_registered;
     data["bangko_sentral_registered"] = bangko_sentral_registered;
+    data["remarks"] = remarks;
+    return data;
+  }
+}
+
+class LineOfBusinessModel {
+  String id = "";
+  String line_of_business;
+  String application_type;
+  double capital_investment;
+  double gross_essential;
+  double gross_non_essential;
+  String measure_description;
+  int number_of_units;
+  int capacity;
+  String remarks;
+
+  LineOfBusinessModel({
+    this.id,
+    this.line_of_business,
+    this.application_type,
+    this.capital_investment,
+    this.gross_essential,
+    this.gross_non_essential,
+    this.measure_description,
+    this.number_of_units,
+    this.capacity,
+    this.remarks,
+  });
+
+  LineOfBusinessModel.fromJson(Map<String, dynamic> json) {
+    id = json["id"];
+    line_of_business = json["line_of_business"];
+    application_type = json["application_type"];
+    capital_investment = json["capital_investment"];
+    gross_essential = json["gross_essential"];
+    gross_non_essential = json["gross_non_essential"];
+    measure_description = json["measure_description"];
+    number_of_units = json["number_of_units"];
+    capacity = json["capacity"];
+    remarks = json["remarks"];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data["id"] = id;
+    data["line_of_business"] = line_of_business;
+    data["application_type"] = application_type;
+    data["capital_investment"] = capital_investment;
+    data["gross_essential"] = gross_essential;
+    data["gross_non_essential"] = gross_non_essential;
+    data["measure_description"] = measure_description;
+    data["number_of_units"] = number_of_units;
+    data["capacity"] = capacity;
     data["remarks"] = remarks;
     return data;
   }

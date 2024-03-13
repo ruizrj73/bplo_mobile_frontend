@@ -6,6 +6,7 @@ import 'package:lgu_bplo/controller/main_controller.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
 import 'package:lgu_bplo/model/business_application_model.dart';
 import 'package:lgu_bplo/utils/attach_file_dialog.dart';
+import 'package:lgu_bplo/utils/local_db.dart';
 import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
@@ -219,18 +220,22 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
   }
 
   buttonFn(String _fn) {
+    switch (viewedTab) {
+      case 2:
+        BusinessOtherInfoView.businessOtherInfoEntry();
+        break;
+      case 3:
+        BusinessAddressInfoView.businessAddressInfoEntry();
+        break;
+      case 4:
+        BusinessOperationInfoView.businessOperationInfoEntry();
+        break;
+      case 5:
+        BusinessRequirementView.businessRequirementEntry();
+        break;
+    }
     switch (_fn) {
       case "Next":
-        switch (viewedTab) {
-          case 2:
-            BusinessOtherInfoView.businessOtherInfoEntry();
-            break;
-          case 3:
-            BusinessAddressInfoView.businessAddressInfoEntry();
-            break;
-          case 4:
-            break;
-        }
         setState(() {
           viewedTab += 1;
           scrollController.animateTo(0,
@@ -271,7 +276,13 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         }
         break;
       case "Save as Draft":
-       break;
+        LocalDB().localInsertBusinessApplication(userController.activeBusinessApplication.value).then((value) {
+          popupDialog(context, NotifHeader.success, "Draft Application successfully saved.").then((value) {
+            fileController.listFileAttachment.value.fileAttachments = [];
+            Get.back();
+          });
+        });
+        break;
       case "Continue":
         setState(() {
           viewedTab += 1;
@@ -320,7 +331,8 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
                 e.type,
                 u,
                 "",
-                ""
+                "",
+                null
               );
               _attachments.add(_att);
             }
@@ -331,6 +343,7 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         userController.activeBusinessApplication.value.application_type = userController.applicationType.value;
         userController.activeBusinessApplication.value.user_id = userController.getId();
         userController.activeBusinessApplication.value.user_name = userController.getFullName();
+        userController.activeBusinessApplication.value.remarks = "Documentary  requirements, still waiting for approval.";
 
         await saveBusinessApplication(userController.activeBusinessApplication.value).then((value) {
           EasyLoading.dismiss();
@@ -374,10 +387,11 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
                 "",
                 u.split(".").last,
                 u.split("/").last,
-                "",
+                e.type,
                 u,
                 "",
-                ""
+                "",
+                null
               );
               _attachments.add(_att);
             }

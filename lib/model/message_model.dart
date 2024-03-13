@@ -45,7 +45,7 @@ class MessageModel {
     remarks = json["remarks"];
     messageState = json["messageState"];
     status = json["status"];
-    savedate = DateTime.parse(json["savedate"]);
+    savedate = DateTime.parse(json["savedate"].toString().replaceAll("Z", ""));
   }
 
   Map<String, dynamic> toJson({bool forLocalDb = false}) {

@@ -4,8 +4,11 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/model/business_application_model.dart';
+import 'package:lgu_bplo/utils/attach_file_dialog.dart';
 import 'package:lgu_bplo/utils/bottom_navigation_bar.dart';
+import 'package:lgu_bplo/utils/local_db.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
+import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:shimmer/shimmer.dart';
@@ -47,13 +50,15 @@ class TransactionsViewState extends State<TransactionsView> {
             businessApplicationTemp.add(BusinessApplication.fromJson(p));
           });
         }
-        setState(() {
-          businessApplication = businessApplicationTemp;
-          isLoadingData = false;
-        });
+        if (mounted) {
+          setState(() {
+            businessApplication = businessApplicationTemp;
+            isLoadingData = false;
+          });
 
-        userController.hasNewTransaction.value = false;
-        userController.hasNewTransaction.refresh();
+          userController.hasNewTransaction.value = false;
+          userController.hasNewTransaction.refresh();
+        }
       });
     });
   }
@@ -280,7 +285,7 @@ class TransactionsViewState extends State<TransactionsView> {
                                     ),
                                   ),
                                   Text(
-                                    getRemarks(businessApp.application_status), 
+                                    businessApp.remarks ?? "", 
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 10, 
@@ -322,9 +327,7 @@ class TransactionsViewState extends State<TransactionsView> {
                         right: 8,
                         child: InkWell(
                           onTap: () {
-                            userController.applicationType.value = businessApp.application_type;
-                            userController.activeBusinessApplication.value = businessApp;
-                            Get.toNamed(PageRoutes.BusinessPermitApplication);
+                            viewApplication(businessApp);
                           },
                           child: Container(
                             width: 90,
@@ -467,44 +470,31 @@ class TransactionsViewState extends State<TransactionsView> {
     }
   }
 
-  String getRemarks(String status) {
-    switch (status) {
-      case "Waiting List":
-        return "Documentary requirements still waiting for approval";
-        break;
-      case "Pending Application":
-        return "Application is Approved and waiting for complete requirements";
-        break;
-      case "For Verification":
-        return "Application is now in verification stage";
-        break;
-      case "For Endoresment":
-        return "Your application is endorsed to the specific person";
-        break;
-      case "For Payment":
-        return "Your application is waiting for payment";
-        break;
-      case "Paid":
-        return "Your application is now paid";
-        break;
-      case "For Approval":
-        return "Your application is waiting for approval of specific person";
-        break;
-      case "For Issuance":
-        return "Your application is now ready for issuance";
-        break;
-      case "License Issued":
-        return "Business Permit issued";
-        break;
-      case "License Declined":
-        return "Business Permit application declined";
-        break;
-      case "Cancel Application":
-        return "Business Permit application cancelled";
-        break;
-      default:
-        return "";
-        break;
-    }
+  viewApplication(BusinessApplication businessApp) async {
+    return await LocalDB().localBusinessApplication(baId: businessApp.id).then((data) async {
+      if (data.isNotEmpty) {
+        popupDialogYesNo(context, "Draft Application", "You have a draft application saved. Do you want to load it?", additionalHeader: "Warning!", additionalMessage: "Pressing 'No' will remove draft application.").then((value) {
+          if (value == "Yes") {
+            userController.applicationType.value = data[0].application_type;
+            userController.activeBusinessApplication.value = data[0];
+            userController.selectedBusinessApplication.value = data[0];
+            Get.toNamed(PageRoutes.BusinessPermitApplication);
+          } else if (value == "No") {
+            LocalDB().deleteBusinessApplication(data[0]);
+            userController.applicationType.value = businessApp.application_type;
+            userController.activeBusinessApplication.value = BusinessApplication.fromJson(businessApp.toJson());
+            userController.selectedBusinessApplication.value = businessApp;
+            fileController.listFileAttachment.value.fileAttachments.removeWhere((_f) => _f.applicationId == businessApp.id);
+            Get.toNamed(PageRoutes.BusinessPermitApplication);
+          }
+        });
+      } else {
+        userController.applicationType.value = businessApp.application_type;
+        userController.activeBusinessApplication.value = BusinessApplication.fromJson(businessApp.toJson());
+        userController.selectedBusinessApplication.value = businessApp;
+        Get.toNamed(PageRoutes.BusinessPermitApplication);
+      }
+    });
   }
+
 }

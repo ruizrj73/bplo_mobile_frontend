@@ -1,12 +1,19 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers, prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: no_leading_underscores_for_local_identifiers, prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_function_literals_in_foreach_calls
 
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:lgu_bplo/controller/file_controller.dart';
 import 'package:lgu_bplo/model/business_application_model.dart';
 import 'package:lgu_bplo/utils/attach_file_dialog.dart';
+import 'package:lgu_bplo/utils/attachment_type.dart';
+import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
+import 'package:lgu_bplo/view/business_application/line_of_business_dialog.dart';
+
+String selectedAppTypeOption = "New";
+LineOfBusinessModel lineOfBusiness;
 
 class BusinessRequirementView extends StatefulWidget {
   final BusinessApplication xBusinessApplication;
@@ -15,20 +22,27 @@ class BusinessRequirementView extends StatefulWidget {
   @override
   BusinessRequirementViewState createState() => BusinessRequirementViewState();
 
-  static Future<String> businessRequirementEntry(BusinessApplication _businessApplication) async { 
-    return BusinessRequirementViewState().businessRequirementEntry(_businessApplication);
+  static Future<String> businessRequirementEntry() async { 
+    return BusinessRequirementViewState().businessRequirementEntry();
   }
 }
 
 class BusinessRequirementViewState extends State<BusinessRequirementView> {
-  String selectedAppTypeOption = "New";
+  var numericFormatter = NumberFormat('#,###,##0');
+  var currencyFormatter = NumberFormat('#,###,##0.00');
+  final BusinessApplication _businessApplication = userController.activeBusinessApplication.value;
   
   @override
   void initState() {
     super.initState(); 
 
     setState(() {
-      // TemporaryVariables.patientPartial = widget.xBusinessApplication.patient;
+      if (_businessApplication.line_of_business != null && _businessApplication.line_of_business.isNotEmpty) {
+        lineOfBusiness = _businessApplication.line_of_business[0];
+      } else {
+        lineOfBusiness = null;
+      }
+      
     });
   }
 
@@ -81,14 +95,18 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  
+                  LineOfBusinessDialog().lineOfBusinessShowDialog(context, lineOfBusiness).then((value) {
+                    setState(() {
+                      lineOfBusiness = value;
+                    });
+                  });
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(MaterialIcons.add_circle, size: 15),
                     SizedBox(width: 4),
-                    Text('Add Line of Business', style: TextStyle(fontSize: 12)),
+                    Text('${lineOfBusiness == null ? "Add" : "Update"} Line of Business', style: TextStyle(fontSize: 12)),
                     SizedBox(width: 4),
                     Text('(Refer to BIR Registration)', style: TextStyle(fontSize: 10)),
                   ],
@@ -111,7 +129,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     SizedBox(height: 4),
                     Text('Description:', style: TextStyle(fontSize: 12, color: ThemeColor.success)),
                     SizedBox(height: 4),
-                    Text('________________________________________________', style: TextStyle(fontSize: 12, color: ThemeColor.success)),
+                    Text(lineOfBusiness != null ? lineOfBusiness.line_of_business : "", style: TextStyle(fontSize: 12, color: ThemeColor.success)),
                     Row(
                       children: [
                         Text('Type:', style: TextStyle(fontSize: 10, color: ThemeColor.success, fontWeight: FontWeight.w800)),
@@ -121,10 +139,10 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                           width: 25,
                           child: Radio(
                             value: "New",
-                            groupValue: selectedAppTypeOption,
+                            groupValue: lineOfBusiness != null ? lineOfBusiness.application_type : "New",
                             onChanged: (value) {
                               setState(() {
-                                selectedAppTypeOption = value;
+                                lineOfBusiness.application_type = value;
                               });
                             },
                           ),
@@ -136,10 +154,10 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                           width: 25,
                           child: Radio(
                             value: "Renew",
-                            groupValue: selectedAppTypeOption,
+                            groupValue: lineOfBusiness != null ? lineOfBusiness.application_type : "Renew",
                             onChanged: (value) {
                               setState(() {
-                                selectedAppTypeOption = value;
+                                lineOfBusiness.application_type = value;
                               });
                             },
                           ),
@@ -148,11 +166,11 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                       ],
                     ),
                     SizedBox(height: 4),
-                    Text('Capital Investment: PHP 0.00', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                    Text('Capital Investment: PHP ${lineOfBusiness != null ? currencyFormatter.format(lineOfBusiness.capital_investment) : "0.00"}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
                     SizedBox(height: 4),
-                    Text('Gross Essential: PHP 0.00', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                    Text('Gross Essential: PHP ${lineOfBusiness != null ? currencyFormatter.format(lineOfBusiness.gross_essential) : "0.00"}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
                     SizedBox(height: 4),
-                    Text('Gross Non-Essential: PHP 0.00', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                    Text('Gross Non-Essential: PHP ${lineOfBusiness != null ? currencyFormatter.format(lineOfBusiness.gross_non_essential) : "0.00"}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
                   ],
                 )
               ),
@@ -191,11 +209,11 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   children: [
                     Text('Description:', style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
                     SizedBox(height: 4),
-                    Text('________________________________________________', style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
+                    Text(lineOfBusiness != null ? lineOfBusiness.measure_description : "", style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
                     SizedBox(height: 4),
-                    Text('Number of Unit: 0', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
+                    Text('Number of Unit: ${lineOfBusiness != null ? numericFormatter.format(lineOfBusiness.number_of_units) : "0"}', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
                     SizedBox(height: 4),
-                    Text('Capacity: 0', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
+                    Text('Capacity: ${lineOfBusiness != null ? numericFormatter.format(lineOfBusiness.capacity) : "0"}', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
                   ],
                 )
               ),
@@ -216,14 +234,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq1 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq1).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('If Place is Owned (CTC Tax Dec or Affidavit of Consent)', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq1, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -240,7 +259,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq1);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -266,14 +285,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq2 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq2).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('If Rented from LGU (Contract of Lease or Rental Clearance)', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq2, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -290,7 +310,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq2);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -316,14 +336,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq3 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq3).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('If Rented from Non-LGU (Contract of Lease or Tax Clearance)', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq3, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -340,7 +361,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq3);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -366,14 +387,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq4 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq4).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('If Location is Subdivision (Home Owners Consent)', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq4, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -390,7 +412,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq4);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -416,14 +438,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq5 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq5).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('Sketch Map Location of Business Address', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq5, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -440,7 +463,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq5);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -466,14 +489,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq6 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq6).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('Updated Tax Declaration of Land', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq6, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -490,7 +514,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq6);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -516,14 +540,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq7 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq7).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('Updated Tax Declaration of Building', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq7, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -540,7 +565,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq7);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -566,14 +591,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq8 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq8).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('Updated Tax Map', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq8, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -590,7 +616,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq8);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -616,14 +642,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq9 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq9).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('Certificate of Occupancy or Annual Inspection', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq9, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -640,7 +667,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq9);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -666,14 +693,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq10 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq10).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('Health Card Certificate', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq10, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -690,7 +718,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq10);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -716,14 +744,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq11 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq11).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('Sanitary Permit', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq11, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -740,7 +769,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq11);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -766,14 +795,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq12 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq12).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('Solid Waste Management Certificate', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq12, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -790,7 +820,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq12);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -816,14 +846,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq13 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq13).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('Environmental Certificate', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq13, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -840,7 +871,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile("");
+                  attachFile(AttachmentType.docReq13);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -866,14 +897,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                     width: 30,
                     height: 30,
                     child: Checkbox(
-                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == "Attachment1" && e.files.isNotEmpty) != null,
+                      value: (fileController.listFileAttachment.value.fileAttachments ?? []).firstWhereOrNull((e) => e.type == AttachmentType.docReq14 && e.files.isNotEmpty) != null ||
+                              (userController.activeBusinessApplication.value.attachment ?? []).where((att) => att.file_description == AttachmentType.docReq14).isNotEmpty,
                       onChanged: (bool value) {
                       },
                     )
                   )),
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 155,
-                    child: Text('Business Zoning Certificate', softWrap: true, style: TextStyle(fontSize: 11)),
+                    child: Text(AttachmentType.docReq14, softWrap: true, style: TextStyle(fontSize: 11)),
                   ),
                   SizedBox(width: 8),
                 ],
@@ -890,7 +922,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  // attachFile("");
+                  attachFile(AttachmentType.docReq14);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -915,7 +947,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
         if (fileAttachments.isNotEmpty) {
           fileController.listFileAttachment.value.fileAttachments.removeWhere((e) => e.type == fileType);
         }
-        FileAttachment _file = FileAttachment("", fileType, fileController.fileListTemp.value.fileList, []);
+        FileAttachment _file = FileAttachment(userController.activeBusinessApplication.value.id, fileType, fileController.fileListTemp.value.fileList, []);
         fileAttachments.add(_file);
         fileController.listFileAttachment.value.fileAttachments = fileAttachments;
         fileController.listFileAttachment.refresh();
@@ -924,7 +956,27 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
     });
   }
 
-  businessRequirementEntry(BusinessApplication _businessApplication) {
-
+  businessRequirementEntry() {
+    _businessApplication.line_of_business = lineOfBusiness != null ? [lineOfBusiness] : [];
+    List<FileAttachment> fileAttachments = fileController.listFileAttachment.value.fileAttachments ?? [];
+    if (fileAttachments.isNotEmpty) {
+      fileAttachments.forEach((_att) {
+        _att.files.forEach((f) {
+          f.readAsBytes().then((value) {
+            AttachmentModel _atx = AttachmentModel(
+              "",
+              f.name.split(".").last,
+              f.name,
+              _att.type,
+              f.path,
+              "",
+              "",
+              value
+            );
+            _businessApplication.attachment.add(_atx);
+          });
+        });
+      });
+    }
   }
 }

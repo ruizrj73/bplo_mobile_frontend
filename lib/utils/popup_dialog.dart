@@ -150,7 +150,7 @@ Future<String> popupDialogConfirmCancel(BuildContext context, String headerText,
   );
 }
 
-Future<String> popupDialogYesNo(BuildContext context, String headerText, message) {
+Future<String> popupDialogYesNo(BuildContext context, String headerText, message, {String additionalHeader = "", additionalMessage = ""}) {
   return showDialog<String>(
     context: context,
     builder: (BuildContext context) => AlertDialog(
@@ -166,13 +166,38 @@ Future<String> popupDialogYesNo(BuildContext context, String headerText, message
       ),
       content: SizedBox(
         width: MediaQuery.of(context).size.width - 80,
-        child: Text(
-          message,
-          style: TextStyle(
-            fontFamily: "Poppins",
-            color: Colors.black,
-            fontSize: 12
-          )
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              message,
+              style: TextStyle(
+                fontFamily: "Poppins",
+                color: Colors.black,
+                fontSize: 12
+              )
+            ),
+            additionalHeader == "" && additionalMessage == "" ? Container() : SizedBox(height: 32),
+            additionalHeader == "" ? Container() : Text(
+              additionalHeader,
+              style: TextStyle(
+                fontFamily: "Poppins",
+                color: ThemeColor.warning,
+                fontSize: 14,
+                fontWeight: FontWeight.w800
+              )
+            ),
+            additionalHeader == "" ? Container() : SizedBox(height: 8),
+            additionalMessage == "" ? Container() : Text(
+              additionalMessage,
+              style: TextStyle(
+                fontFamily: "Poppins",
+                color: ThemeColor.warning,
+                fontSize: 12,
+              )
+            ),
+          ],
         ),
       ),
       actions: <Widget>[

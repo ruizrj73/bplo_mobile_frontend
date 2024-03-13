@@ -96,11 +96,21 @@ class BusinessOtherInfoViewState extends State<BusinessOtherInfoView> {
         lastName.text = (_businessApplication.business_owner_info ?? [])[0].last_name ?? "";
         suffix.text = (_businessApplication.business_owner_info ?? [])[0].suffix ?? "";
         _gender = (_businessApplication.business_owner_info ?? [])[0].gender ?? "";
+      } else {
+        firstName.text = "";
+        middleName.text = "";
+        lastName.text = "";
+        suffix.text = "";
+        _gender = "";
       }
       if ((_businessApplication.business_contact_info ?? []).isNotEmpty) {
         mobileNumber.text = (_businessApplication.business_contact_info ?? [])[0].mobile_number ?? "";
         telFaxNumber.text = (_businessApplication.business_contact_info ?? [])[0].tel_fax_number ?? "";
         emailAddress.text = (_businessApplication.business_contact_info ?? [])[0].email_address ?? "";
+      } else {
+        mobileNumber.text = "";
+        telFaxNumber.text = "";
+        emailAddress.text = "";
       }
     });
   }

@@ -22,6 +22,7 @@ import 'package:lgu_bplo/firebase_options.dart';
 import 'package:lgu_bplo/utils/app_version_handler.dart';
 import 'package:lgu_bplo/utils/env.dart';
 import 'package:lgu_bplo/utils/firebase_messaging_handler.dart';
+import 'package:lgu_bplo/utils/local_db.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:lgu_bplo/view/account_option_view.dart';
@@ -216,6 +217,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     Get.put<DeviceInfoController>(DeviceInfoController(), permanent: true);
     Get.put<UserController>(UserController(), permanent: true);
     Get.put<FirebaseMessagingHandler>(FirebaseMessagingHandler(), permanent: true);
+    Get.put<LocalDB>(LocalDB(), permanent: true);
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       // initialBinding: NetworkBinding(),

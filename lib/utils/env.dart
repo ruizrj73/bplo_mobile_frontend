@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Env {
   static String env = "live";
-  static String devIP = "192.168.1.12";
+  static String devIP = "192.168.1.3";
   static String liveIP = "143.198.91.135";
   static String livePort = "9009";
   static String devPort = "3000";

@@ -23,6 +23,7 @@ class UserController extends GetxController {
   RxBool hasNewMessage = false.obs;
   RxBool hasNewTransaction = false.obs;
   Rx<BusinessApplication> activeBusinessApplication = BusinessApplication().obs;
+  Rx<BusinessApplication> selectedBusinessApplication = BusinessApplication().obs; // used for comparing previous and current entry (if not the same, popup confirmation)
   Rx<BusinessApplicationList> listBusinessApplication = BusinessApplicationList().obs;
   RxString applicationType = "New".obs;
   Rx<MessageList> listMessages = MessageList().obs;

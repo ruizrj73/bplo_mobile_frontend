@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:intl/intl.dart';
+import 'package:number_text_input_formatter/number_text_input_formatter.dart';
 
 class InputControls {
   static Widget textFieldInput(BuildContext context, TextEditingController inputController, {
@@ -14,7 +15,10 @@ class InputControls {
           bool isDate = false, 
           bool isCurrentDate = true, 
           bool readOnly = false,
-          TextCapitalization textCapitalization = TextCapitalization.words
+          TextCapitalization textCapitalization = TextCapitalization.words,
+          Function(String) onChangedx,
+          bool isNumeric = false,
+          bool isCurrency = false
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,8 +47,23 @@ class InputControls {
                 isDense: true,
                 counterText: '',
               ),
+              inputFormatters: !isNumeric && !isCurrency ? [] : [
+                NumberTextInputFormatter(
+                  integerDigits: 13,
+                  decimalDigits: isCurrency ? 2 : 0,
+                  maxValue: '1000000000000.00',
+                  decimalSeparator: '.',
+                  groupDigits: 3,
+                  groupSeparator: ',',
+                  allowNegative: false,
+                  overrideDecimalPoint: true,
+                  insertDecimalPoint: isCurrency,
+                  insertDecimalDigits: isCurrency,
+                ),
+              ],
               style: TextStyle(fontSize: 12),
               readOnly: isDate || readOnly,
+              onChanged: onChangedx,
               onTap: () async {
                 if (isDate) {
                   DateTime pickedDate = await showDatePicker(

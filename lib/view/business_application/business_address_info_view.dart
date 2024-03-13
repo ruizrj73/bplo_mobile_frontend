@@ -141,6 +141,61 @@ class BusinessAddressInfoViewState extends State<BusinessAddressInfoView> {
   @override
   void initState() {
     super.initState(); 
+
+    setValues();
+  }
+
+  setValues() {
+    if ((_businessApplication.business_address_info ?? []).isNotEmpty) {
+      businessZipcode = _businessApplication.business_address_info.first.zip_code;
+      businessRegion = _businessApplication.business_address_info.first.region;
+      businessProvince = _businessApplication.business_address_info.first.province;
+      businessCityMunicipality = _businessApplication.business_address_info.first.city_municipality;
+      businessBarangay = _businessApplication.business_address_info.first.barangay;
+      businessHouseBldgNo.text = _businessApplication.business_address_info.first.house_bldg_no;
+      businessBldgName.text = _businessApplication.business_address_info.first.building_name;
+      businessLotUnitNo.text = _businessApplication.business_address_info.first.lot_unit_no;
+      businessBlockFloorNo.text = _businessApplication.business_address_info.first.block_floor_no;
+      businessStreet.text = _businessApplication.business_address_info.first.street;
+      businessSubdivision.text = _businessApplication.business_address_info.first.subdivision;
+    } else {
+      businessZipcode = zipcodeSelection.first;
+      businessRegion = regionSelection.first;
+      businessProvince = provinceSelection.first;
+      businessCityMunicipality = cityMunicipalitySelection.first;
+      businessBarangay = barangaySelection.first;
+      businessHouseBldgNo.text = "";
+      businessBldgName.text = "";
+      businessLotUnitNo.text = "";
+      businessBlockFloorNo.text = "";
+      businessStreet.text = "";
+      businessSubdivision.text = "";
+    }
+    if ((_businessApplication.business_owner_address_info ?? []).isNotEmpty) {
+      ownerZipcode = _businessApplication.business_owner_address_info.first.zip_code;
+      ownerRegion = _businessApplication.business_owner_address_info.first.region;
+      ownerProvince = _businessApplication.business_owner_address_info.first.province;
+      ownerCityMunicipality = _businessApplication.business_owner_address_info.first.city_municipality;
+      ownerBarangay = _businessApplication.business_owner_address_info.first.barangay;
+      ownerHouseBldgNo.text = _businessApplication.business_owner_address_info.first.house_bldg_no;
+      ownerBldgName.text = _businessApplication.business_owner_address_info.first.building_name;
+      ownerLotUnitNo.text = _businessApplication.business_owner_address_info.first.lot_unit_no;
+      ownerBlockFloorNo.text = _businessApplication.business_owner_address_info.first.block_floor_no;
+      ownerStreet.text = _businessApplication.business_owner_address_info.first.street;
+      ownerSubdivision.text = _businessApplication.business_owner_address_info.first.subdivision;
+    } else {
+      ownerZipcode = zipcodeSelection.first;
+      ownerRegion = regionSelection.first;
+      ownerProvince = provinceSelection.first;
+      ownerCityMunicipality = cityMunicipalitySelection.first;
+      ownerBarangay = barangaySelection.first;
+      ownerHouseBldgNo.text = "";
+      ownerBldgName.text = "";
+      ownerLotUnitNo.text = "";
+      ownerBlockFloorNo.text = "";
+      ownerStreet.text = "";
+      ownerSubdivision.text = "";
+    }
   }
 
   @override
@@ -407,17 +462,17 @@ class BusinessAddressInfoViewState extends State<BusinessAddressInfoView> {
     _businessApplication.business_address_info = [bai];
     BusinessOwnerAddressInfoModel boai = BusinessOwnerAddressInfoModel(
       id: "",
-      region: businessRegion,
-      province: businessProvince,
-      city_municipality: businessCityMunicipality,
-      barangay: businessBarangay,
-      zip_code: businessZipcode,
-      house_bldg_no: businessHouseBldgNo.text,
-      building_name: businessBldgName.text,
-      lot_unit_no: businessLotUnitNo.text,
-      block_floor_no: businessBlockFloorNo.text,
-      street: businessStreet.text,
-      subdivision: businessSubdivision.text,
+      region: ownerRegion,
+      province: ownerProvince,
+      city_municipality: ownerCityMunicipality,
+      barangay: ownerBarangay,
+      zip_code: ownerZipcode,
+      house_bldg_no: ownerHouseBldgNo.text,
+      building_name: ownerBldgName.text,
+      lot_unit_no: ownerLotUnitNo.text,
+      block_floor_no: ownerBlockFloorNo.text,
+      street: ownerStreet.text,
+      subdivision: ownerSubdivision.text,
       remarks: "",
     );
     _businessApplication.business_owner_address_info = [boai];
