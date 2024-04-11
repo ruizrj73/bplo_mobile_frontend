@@ -24,7 +24,7 @@ class LocalDB extends GetxController {
       // Set the path to the database. Note: Using the `join` function from the
       // `path` package is best practice to ensure the path is correctly
       // constructed for each platform.
-      join(await getDatabasesPath(), 'localData3'),
+      join(await getDatabasesPath(), 'localData4'),
       // When the database is first created, create a table to store dogs.
       onCreate: (db, version) async {
         // Run the CREATE TABLE statement on the database.
@@ -36,6 +36,7 @@ class LocalDB extends GetxController {
         await db.execute(DBScripts().createBusinessOwnerAddressInfoTable());
         await db.execute(DBScripts().createBusinessOperationInfoTable());
         await db.execute(DBScripts().createLineOfBusinessTable());
+        await db.execute(DBScripts().createLineOfBusinessMeasurePaxTable());
       },
       // Set the version. This executes the onCreate function and provides a
       // path to perform database upgrades and downgrades.
@@ -160,6 +161,15 @@ class LocalDB extends GetxController {
           }
         });
 
+        await db.rawQuery("SELECT * FROM lineofbusinessmeasurepax WHERE baId = '${_bussAppTemp.id}'").then((List<Map<String, dynamic>> data) {
+          if (data != null && data.isNotEmpty) {
+            _bussAppTemp.line_of_business_measure_pax = [];
+            data.forEach((dta) {
+              _bussAppTemp.line_of_business_measure_pax.add(MeasurePaxModel.fromJson(dta));
+            });
+          }
+        });
+
         businessApplicationList.add(_bussAppTemp);
       });
     }
@@ -266,6 +276,19 @@ class LocalDB extends GetxController {
         });
       }
 
+      if (_businessApplication.line_of_business_measure_pax != null && _businessApplication.line_of_business_measure_pax.isNotEmpty) {
+        _businessApplication.line_of_business_measure_pax.forEach((_data) async {
+          Map<String, Object> _datax = _data.toJson();
+          _datax["baId"] = _businessApplication.id;
+
+          await db.insert(
+            'lineofbusinessmeasurepax',
+            _datax,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        });
+      }
+
       await localBusinessApplication().then((value) {
         return value;
       });
@@ -319,6 +342,12 @@ class LocalDB extends GetxController {
     
     await db.delete(
       'lineofbusiness',
+      where: 'baId = ?',
+      whereArgs: [_businessApplication.id],
+    );
+    
+    await db.delete(
+      'lineofbusinessmeasurepax',
       where: 'baId = ?',
       whereArgs: [_businessApplication.id],
     );

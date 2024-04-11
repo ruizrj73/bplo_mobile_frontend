@@ -123,11 +123,22 @@ class DBScripts {
   String createLineOfBusinessTable() {
     return """CREATE TABLE IF NOT EXISTS lineofbusiness(
       id TEXT,
+      code TEXT,
       line_of_business TEXT,
       application_type TEXT,
       capital_investment REAL,
       gross_essential REAL,
       gross_non_essential REAL,
+      units INTEGER,
+      remarks TEXT,
+      baId TEXT
+    )""";
+  }
+
+  String createLineOfBusinessMeasurePaxTable() {
+    return """CREATE TABLE IF NOT EXISTS lineofbusinessmeasurepax(
+      id TEXT,
+      line_of_business TEXT,
       measure_description TEXT,
       number_of_units INTEGER,
       capacity INTEGER,

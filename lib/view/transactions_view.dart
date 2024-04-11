@@ -42,7 +42,7 @@ class TransactionsViewState extends State<TransactionsView> {
         viewApplicationShow = {"": false};
       }
     });
-    Future.delayed(Duration(seconds: 2)).then((value) async {
+    Future.delayed(Duration(seconds: 1)).then((value) async {
       await getListTransactions().then((res) {
         List<BusinessApplication> businessApplicationTemp = [];
         if (res != null) {
@@ -484,15 +484,19 @@ class TransactionsViewState extends State<TransactionsView> {
             userController.applicationType.value = businessApp.application_type;
             userController.activeBusinessApplication.value = BusinessApplication.fromJson(businessApp.toJson());
             userController.selectedBusinessApplication.value = businessApp;
-            fileController.listFileAttachment.value.fileAttachments.removeWhere((_f) => _f.applicationId == businessApp.id);
-            Get.toNamed(PageRoutes.BusinessPermitApplication);
+            fileController.listFileAttachment.value.fileAttachments.removeWhere((f) => f.applicationId == businessApp.id);
+            Get.toNamed(PageRoutes.BusinessPermitApplication).then((value) {
+              loadData();
+            });
           }
         });
       } else {
         userController.applicationType.value = businessApp.application_type;
         userController.activeBusinessApplication.value = BusinessApplication.fromJson(businessApp.toJson());
         userController.selectedBusinessApplication.value = businessApp;
-        Get.toNamed(PageRoutes.BusinessPermitApplication);
+        Get.toNamed(PageRoutes.BusinessPermitApplication).then((value) {
+          loadData();
+        });
       }
     });
   }

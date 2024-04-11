@@ -49,6 +49,7 @@ class BusinessApplication {
   List<BusinessOwnerAddressInfoModel> business_owner_address_info = [];
   BusinessOperationInfoModel business_operation_info;
   List<LineOfBusinessModel> line_of_business = [];
+  List<MeasurePaxModel> line_of_business_measure_pax = [];
 
   BusinessApplication({
     this.id,
@@ -73,6 +74,7 @@ class BusinessApplication {
     this.business_owner_address_info,
     this.business_operation_info,
     this.line_of_business,
+    this.line_of_business_measure_pax,
   });
 
   BusinessApplication.fromJson(Map<String, dynamic> json) {
@@ -137,6 +139,13 @@ class BusinessApplication {
         line_of_business.add(LineOfBusinessModel.fromJson(a));
       });
     }
+
+    if (json['line_of_business_measure_pax'] != null) {
+      line_of_business_measure_pax = [];
+      json['line_of_business_measure_pax'].forEach((a) {
+        line_of_business_measure_pax.add(MeasurePaxModel.fromJson(a));
+      });
+    }
   }
 
   Map<String, dynamic> toJson({bool forLocalDb = false}) {
@@ -190,6 +199,11 @@ class BusinessApplication {
       if (line_of_business != null) {
         data['line_of_business'] =
             line_of_business.map((v) => v.toJson()).toList();
+      }
+      
+      if (line_of_business_measure_pax != null) {
+        data['line_of_business_measure_pax'] =
+            line_of_business_measure_pax.map((v) => v.toJson()).toList();
       }
     }
 
@@ -543,36 +557,74 @@ class BusinessOperationInfoModel {
 
 class LineOfBusinessModel {
   String id = "";
+  String code;
   String line_of_business;
   String application_type;
   double capital_investment;
   double gross_essential;
   double gross_non_essential;
-  String measure_description;
-  int number_of_units;
-  int capacity;
+  int units;
   String remarks;
 
   LineOfBusinessModel({
     this.id,
+    this.code,
     this.line_of_business,
     this.application_type,
     this.capital_investment,
     this.gross_essential,
     this.gross_non_essential,
+    this.units,
+    this.remarks,
+  });
+
+  LineOfBusinessModel.fromJson(Map<String, dynamic> json) {
+    id = json["id"];
+    code = json["code"];
+    line_of_business = json["line_of_business"];
+    application_type = json["application_type"];
+    capital_investment = double.parse(json["capital_investment"].toString());
+    gross_essential = double.parse(json["gross_essential"].toString());
+    gross_non_essential = double.parse(json["gross_non_essential"].toString());
+    units = json["units"];
+    remarks = json["remarks"];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data["id"] = id;
+    data["code"] = code;
+    data["line_of_business"] = line_of_business;
+    data["application_type"] = application_type;
+    data["capital_investment"] = capital_investment;
+    data["gross_essential"] = gross_essential;
+    data["gross_non_essential"] = gross_non_essential;
+    data["units"] = units;
+    data["remarks"] = remarks;
+    return data;
+  }
+}
+
+class MeasurePaxModel {
+  String id = "";
+  String line_of_business;
+  String measure_description;
+  int number_of_units;
+  int capacity;
+  String remarks;
+
+  MeasurePaxModel({
+    this.id,
+    this.line_of_business,
     this.measure_description,
     this.number_of_units,
     this.capacity,
     this.remarks,
   });
 
-  LineOfBusinessModel.fromJson(Map<String, dynamic> json) {
+  MeasurePaxModel.fromJson(Map<String, dynamic> json) {
     id = json["id"];
     line_of_business = json["line_of_business"];
-    application_type = json["application_type"];
-    capital_investment = json["capital_investment"];
-    gross_essential = json["gross_essential"];
-    gross_non_essential = json["gross_non_essential"];
     measure_description = json["measure_description"];
     number_of_units = json["number_of_units"];
     capacity = json["capacity"];
@@ -583,10 +635,6 @@ class LineOfBusinessModel {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data["id"] = id;
     data["line_of_business"] = line_of_business;
-    data["application_type"] = application_type;
-    data["capital_investment"] = capital_investment;
-    data["gross_essential"] = gross_essential;
-    data["gross_non_essential"] = gross_non_essential;
     data["measure_description"] = measure_description;
     data["number_of_units"] = number_of_units;
     data["capacity"] = capacity;

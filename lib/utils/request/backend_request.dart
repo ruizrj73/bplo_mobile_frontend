@@ -314,6 +314,36 @@ Future<dynamic> getListBusinessType() async {
   return response["resultEnum"];
 }
 
+Future<dynamic> getListLineBusiness() async {
+  var response;
+  String url = apiUrl + linebusiness;
+
+  await sendRequest(requestMethod.get, url, isTokenRequired: true).then((value) {
+    response = value;
+  });
+
+  if (response["resultEnum"] == "Success") {
+    return response["resultObject"];
+  }
+
+  return response["resultEnum"];
+}
+
+Future<dynamic> getListMeasurePax() async {
+  var response;
+  String url = apiUrl + measurepax;
+
+  await sendRequest(requestMethod.get, url, isTokenRequired: true).then((value) {
+    response = value;
+  });
+
+  if (response["resultEnum"] == "Success") {
+    return response["resultObject"];
+  }
+
+  return response["resultEnum"];
+}
+
 Future<dynamic> getListTransactions() async {
   var response;
   String url = apiUrl + businessapplication;

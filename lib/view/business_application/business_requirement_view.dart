@@ -11,9 +11,11 @@ import 'package:lgu_bplo/utils/attachment_type.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:lgu_bplo/view/business_application/line_of_business_dialog.dart';
+import 'package:lgu_bplo/view/business_application/measure_pax_dialog.dart';
 
 String selectedAppTypeOption = "New";
-LineOfBusinessModel lineOfBusiness;
+List<LineOfBusinessModel> lineOfBusiness;
+List<MeasurePaxModel> measurePax;
 
 class BusinessRequirementView extends StatefulWidget {
   final BusinessApplication xBusinessApplication;
@@ -37,12 +39,17 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
     super.initState(); 
 
     setState(() {
-      if (_businessApplication.line_of_business != null && _businessApplication.line_of_business.isNotEmpty) {
-        lineOfBusiness = _businessApplication.line_of_business[0];
+      if (_businessApplication.line_of_business != null) {
+        lineOfBusiness = _businessApplication.line_of_business;
       } else {
-        lineOfBusiness = null;
+        lineOfBusiness = [];
       }
       
+      if (_businessApplication.line_of_business_measure_pax != null) {
+        measurePax = _businessApplication.line_of_business_measure_pax;
+      } else {
+        measurePax = [];
+      }
     });
   }
 
@@ -95,9 +102,11 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  LineOfBusinessDialog().lineOfBusinessShowDialog(context, lineOfBusiness).then((value) {
+                  LineOfBusinessDialog().lineOfBusinessShowDialog(context, null).then((value) {
                     setState(() {
-                      lineOfBusiness = value;
+                      if (value != null) {
+                        lineOfBusiness.add(value);
+                      }
                     });
                   });
                 },
@@ -112,67 +121,77 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   ],
                 )
               ),
-              SizedBox(height: 8),
-              Container(
-                padding: EdgeInsets.all(16),
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: ThemeColor.primaryLighter,
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(10)
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Code: ________________________', style: TextStyle(fontSize: 14, color: ThemeColor.warning)),
-                    SizedBox(height: 4),
-                    Text('Description:', style: TextStyle(fontSize: 12, color: ThemeColor.success)),
-                    SizedBox(height: 4),
-                    Text(lineOfBusiness != null ? lineOfBusiness.line_of_business : "", style: TextStyle(fontSize: 12, color: ThemeColor.success)),
-                    Row(
-                      children: [
-                        Text('Type:', style: TextStyle(fontSize: 10, color: ThemeColor.success, fontWeight: FontWeight.w800)),
-                        SizedBox(width: 8),
-                        SizedBox(
-                          height: 25,
-                          width: 25,
-                          child: Radio(
-                            value: "New",
-                            groupValue: lineOfBusiness != null ? lineOfBusiness.application_type : "New",
-                            onChanged: (value) {
-                              setState(() {
-                                lineOfBusiness.application_type = value;
-                              });
-                            },
+              Column(
+                children: <Widget>[...(lineOfBusiness ?? []).map((_lineOfBusiness) =>
+                  Column(
+                    children: [
+                      SizedBox(height: 8),
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          color: ThemeColor.primaryLighter,
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(10)
                           ),
                         ),
-                        Text("New", style: TextStyle(fontSize: 10, color: ThemeColor.disabledText)),
-                        SizedBox(width: 8),
-                        SizedBox(
-                          height: 25,
-                          width: 25,
-                          child: Radio(
-                            value: "Renew",
-                            groupValue: lineOfBusiness != null ? lineOfBusiness.application_type : "Renew",
-                            onChanged: (value) {
-                              setState(() {
-                                lineOfBusiness.application_type = value;
-                              });
-                            },
-                          ),
-                        ),
-                        Text("Renew", style: TextStyle(fontSize: 10, color: ThemeColor.disabledText)),
-                      ],
-                    ),
-                    SizedBox(height: 4),
-                    Text('Capital Investment: PHP ${lineOfBusiness != null ? currencyFormatter.format(lineOfBusiness.capital_investment) : "0.00"}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
-                    SizedBox(height: 4),
-                    Text('Gross Essential: PHP ${lineOfBusiness != null ? currencyFormatter.format(lineOfBusiness.gross_essential) : "0.00"}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
-                    SizedBox(height: 4),
-                    Text('Gross Non-Essential: PHP ${lineOfBusiness != null ? currencyFormatter.format(lineOfBusiness.gross_non_essential) : "0.00"}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
-                  ],
-                )
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Code: ${_lineOfBusiness.code}', style: TextStyle(fontSize: 14, color: ThemeColor.warning)),
+                            SizedBox(height: 4),
+                            Text('Description:', style: TextStyle(fontSize: 12, color: ThemeColor.success)),
+                            SizedBox(height: 4),
+                            Text(_lineOfBusiness.line_of_business, style: TextStyle(fontSize: 12, color: ThemeColor.success)),
+                            Row(
+                              children: [
+                                Text('Type:', style: TextStyle(fontSize: 10, color: ThemeColor.success, fontWeight: FontWeight.w800)),
+                                SizedBox(width: 8),
+                                SizedBox(
+                                  height: 25,
+                                  width: 25,
+                                  child: Radio(
+                                    value: "New",
+                                    groupValue: _lineOfBusiness.application_type,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _lineOfBusiness.application_type = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                Text("New", style: TextStyle(fontSize: 10, color: ThemeColor.disabledText)),
+                                SizedBox(width: 8),
+                                SizedBox(
+                                  height: 25,
+                                  width: 25,
+                                  child: Radio(
+                                    value: "Renew",
+                                    groupValue: _lineOfBusiness.application_type,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _lineOfBusiness.application_type = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                Text("Renew", style: TextStyle(fontSize: 10, color: ThemeColor.disabledText)),
+                              ],
+                            ),
+                            SizedBox(height: 4),
+                            Text('Units: ${_lineOfBusiness.units}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                            SizedBox(height: 4),
+                            Text('Capital Investment: PHP ${currencyFormatter.format(_lineOfBusiness.capital_investment)}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                            SizedBox(height: 4),
+                            Text('Gross Essential: PHP ${currencyFormatter.format(_lineOfBusiness.gross_essential)}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                            SizedBox(height: 4),
+                            Text('Gross Non-Essential: PHP ${currencyFormatter.format(_lineOfBusiness.gross_non_essential)}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                          ],
+                        )
+                      ),
+                    ],
+                  )
+                ).toList()]
               ),
             ],
           ),
@@ -195,27 +214,70 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.all(16),
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: ThemeColor.primaryLighter,
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(10)
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  backgroundColor: ThemeColor.primary,
+                  minimumSize: Size(MediaQuery.of(context).size.width, 25),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  foregroundColor: ThemeColor.primaryText,
+                  shadowColor: Colors.black
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                onPressed: () {
+                  MeasurePaxDialog().measurePaxShowDialog(context, null, lineOfBusiness).then((value) {
+                    setState(() {
+                      if (value != null) {
+                        measurePax.add(value);
+                      }
+                    });
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Description:', style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
-                    SizedBox(height: 4),
-                    Text(lineOfBusiness != null ? lineOfBusiness.measure_description : "", style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
-                    SizedBox(height: 4),
-                    Text('Number of Unit: ${lineOfBusiness != null ? numericFormatter.format(lineOfBusiness.number_of_units) : "0"}', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
-                    SizedBox(height: 4),
-                    Text('Capacity: ${lineOfBusiness != null ? numericFormatter.format(lineOfBusiness.capacity) : "0"}', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
+                    Icon(MaterialIcons.add_circle, size: 15),
+                    SizedBox(width: 4),
+                    Text('Add Measure & Pax', style: TextStyle(fontSize: 12)),
                   ],
                 )
+              ),
+              Column(
+                children: <Widget>[...(_businessApplication.line_of_business_measure_pax ?? []).map((_measurePax) =>
+                  Column(
+                    children: [
+                      SizedBox(height: 8),
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          color: ThemeColor.primaryLighter,
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(10)
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Line of Business:', style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
+                            SizedBox(height: 4),
+                            Text(_measurePax.line_of_business, style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
+                            SizedBox(height: 4),
+                            Text('Description:', style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
+                            SizedBox(height: 4),
+                            Text(_measurePax.measure_description, style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
+                            SizedBox(height: 4),
+                            Text('Number of Unit: ${_measurePax.number_of_units}', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
+                            SizedBox(height: 4),
+                            Text('Capacity: ${_measurePax.capacity}', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
+                          ],
+                        )
+                      ),
+                    ],
+                  )
+                ).toList()]
               ),
             ],
           ),
@@ -957,7 +1019,8 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
   }
 
   businessRequirementEntry() {
-    _businessApplication.line_of_business = lineOfBusiness != null ? [lineOfBusiness] : [];
+    _businessApplication.line_of_business = lineOfBusiness ?? [];
+    _businessApplication.line_of_business_measure_pax = measurePax ?? [];
     List<FileAttachment> fileAttachments = fileController.listFileAttachment.value.fileAttachments ?? [];
     if (fileAttachments.isNotEmpty) {
       fileAttachments.forEach((_att) {

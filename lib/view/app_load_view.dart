@@ -9,6 +9,7 @@ import 'package:lgu_bplo/model/business_application_model.dart';
 import 'package:lgu_bplo/model/business_type_model.dart';
 import 'package:lgu_bplo/model/message_model.dart';
 import 'package:lgu_bplo/model/payment_mode_model.dart';
+import 'package:lgu_bplo/model/setup_line_business_model.dart';
 import 'package:lgu_bplo/utils/firebase_messaging_handler.dart';
 import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
@@ -109,6 +110,20 @@ class AppLoadViewState extends State<AppLoadView> {
           if (res != null) {
             res.forEach((b) {
               mainController.listBusinessType.add(BusinessTypeModel.fromJson(b));
+            });
+          }
+        });
+        await getListLineBusiness().then((res) {
+          if (res != null) {
+            res.forEach((lb) {
+              mainController.listLineOfBusiness.add(SetupLineBusiness.fromJson(lb));
+            });
+          }
+        });
+        await getListMeasurePax().then((res) {
+          if (res != null) {
+            res.forEach((lb) {
+              mainController.listLineOfBusinessMeasurePax.add(SetupLineBusiness.fromJson(lb));
             });
           }
         });

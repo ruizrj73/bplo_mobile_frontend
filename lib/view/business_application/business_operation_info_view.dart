@@ -185,7 +185,7 @@ class BusinessOperationInfoViewState extends State<BusinessOperationInfoView> {
                         child: FittedBox(
                           alignment: Alignment.centerRight,
                           fit: BoxFit.scaleDown,
-                          child: Text('Check if Not Application', style: TextStyle(fontSize: 11)),
+                          child: Text('Check if Not Applicable', style: TextStyle(fontSize: 11)),
                         ),
                       ),
                       SizedBox(width: 8),
@@ -204,7 +204,7 @@ class BusinessOperationInfoViewState extends State<BusinessOperationInfoView> {
                 });
               }, title: "If Place is Owned or Rented"),
               SizedBox(height: 8),
-              InputControls.textFieldInput(context, taxDecNo, title: "Tax declaration Number"),
+              InputControls.textFieldInput(context, taxDecNo, title: "Tax Declaration Number"),
               SizedBox(height: 8),
               InputControls.textFieldInput(context, pinNo, title: "Property Index Number (PIN)"),
               SizedBox(height: 8),

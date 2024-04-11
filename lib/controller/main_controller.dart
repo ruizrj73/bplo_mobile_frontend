@@ -3,6 +3,7 @@ import 'package:lgu_bplo/model/application_status_model.dart';
 import 'package:lgu_bplo/model/application_type_model.dart';
 import 'package:lgu_bplo/model/business_type_model.dart';
 import 'package:lgu_bplo/model/payment_mode_model.dart';
+import 'package:lgu_bplo/model/setup_line_business_model.dart';
 
 class MainController extends GetxController {
   RxInt bottomNavIndex = 0.obs;
@@ -11,4 +12,6 @@ class MainController extends GetxController {
   List<ApplicationStatusModel> listApplicationStatus = [];
   List<ApplicationTypeModel> listApplicationType = [];
   List<BusinessTypeModel> listBusinessType = [];
+  List<SetupLineBusiness> listLineOfBusiness = [];
+  List<SetupLineBusiness> listLineOfBusinessMeasurePax = [];
 }

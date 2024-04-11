@@ -19,6 +19,8 @@ String paymentmode = "setup/paymentmode";
 String applicationstatus = "setup/applicationstatus";
 String applicationtype = "setup/applicationtype";
 String businesstype = "setup/businesstype";
+String linebusiness = "setup/linebusiness";
+String measurepax = "setup/measurepax";
 
 String businessapplication = "business-application";
 String inbox = "mobile-inbox";
