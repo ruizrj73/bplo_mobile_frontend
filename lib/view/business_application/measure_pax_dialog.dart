@@ -62,14 +62,41 @@ class MeasurePaxDialog {
                     _lineOfBusinessSelection, title: "Line of Business"
                   ),
                   SizedBox(height: 4),
-                  InputControls.selectionFieldInput(
-                    context, selectedMeasurePax,
-                    ((val) {
-                      setState(() {
-                        selectedMeasurePax = val;
-                      });
-                    }),
-                    _measurePaxSelection, title: "Description"
+                  Text("Description", style: TextStyle(fontSize: 12)),
+                  SizedBox(height: 4),
+                  Autocomplete<String>(
+                    initialValue: TextEditingValue(text: selectedMeasurePax == "- Select Measure & Pax -" ? "" : selectedMeasurePax),
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text == '') {
+                        return const Iterable<String>.empty();
+                      }
+                      List<String> retList = [];
+                      retList.add(textEditingValue.text);
+                      retList.addAll(_measurePaxSelection.where((String option) {
+                        selectedMeasurePax = textEditingValue.text;
+                        return option.contains(textEditingValue.text.toLowerCase());
+                      }));
+                      return retList;
+                    },
+                    onSelected: (String selection) {
+                      selectedMeasurePax = selection;
+                    },
+                    fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: 30,
+                        child: TextField(
+                          controller: controller,
+                          focusNode: focusNode,
+                          onEditingComplete: onEditingComplete,
+                          style: TextStyle(fontSize: 12),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(4.0))),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                          )
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(height: 4),
                   InputControls.textFieldInput(context, numberOfUnitsController, title: "Number of Units", keyboardType: TextInputType.number, isNumeric: true),

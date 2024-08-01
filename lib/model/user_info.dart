@@ -11,6 +11,7 @@ class UserInfo {
   String suffix = "";
   String email = "";
   String contactnumber = "";
+  String clusterGroup = "";
   String userType = "";
   String typeId = "";
   String typeName = "";
@@ -26,6 +27,7 @@ class UserInfo {
     this.suffix,
     this.email,
     this.contactnumber,
+    this.clusterGroup,
     this.userType,
     this.typeId,
     this.typeName,
@@ -42,6 +44,7 @@ class UserInfo {
     suffix = json["suffix"];
     email = json["email"];
     contactnumber = json["contactnumber"];
+    clusterGroup = json["clusterGroup"];
     userType = json["userType"];
     typeId = json["typeId"];
     typeName = json["typeName"];
@@ -59,6 +62,7 @@ class UserInfo {
     data["suffix"] = suffix;
     data["email"] = email;
     data["contactnumber"] = contactnumber;
+    data["clusterGroup"] = clusterGroup;
     data["userType"] = userType;
     data["typeId"] = typeId;
     data["typeName"] = typeName;

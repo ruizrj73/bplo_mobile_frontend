@@ -10,8 +10,6 @@ import 'package:lgu_bplo/utils/request/backend_request.dart';
 import '../../utils/snackbar_dialog.dart';
 import '../../utils/theme_color.dart';
 
-BusinessApplication _businessApplication = userController.activeBusinessApplication.value;
-
 class LineOfBusinessDialog {
   var numericFormatter = NumberFormat('#,###,##0');
   var currencyFormatter = NumberFormat('#,###,##0.00');
@@ -19,7 +17,7 @@ class LineOfBusinessDialog {
   final List<String> _lineBusinessSelection = [];
   final codeController = TextEditingController();
   String selectedLineBusiness = "- Select Line of Business -";
-  String applicationType = _businessApplication.application_type;
+  String applicationType = userController.activeBusinessApplication.value.application_type;
   final unitsController = TextEditingController();
   final capitalOfInvestmentController = TextEditingController();
   final grossEssentialController = TextEditingController();
@@ -28,12 +26,12 @@ class LineOfBusinessDialog {
   Future<LineOfBusinessModel> lineOfBusinessShowDialog(BuildContext context, LineOfBusinessModel lineOfBusiness) {
     _lineBusinessSelection.add("- Select Line of Business -");
     for (var lb in mainController.listLineOfBusiness) {
-      _lineBusinessSelection.add("${lb.code} - ${lb.description}");
+      _lineBusinessSelection.add("${lb.code ?? ""} - ${lb.description}");
     }
 
     if (lineOfBusiness != null) {
       codeController.text = lineOfBusiness.code;
-      selectedLineBusiness = "${lineOfBusiness.code} - ${lineOfBusiness.line_of_business}";
+      selectedLineBusiness = lineOfBusiness.code == "" ? lineOfBusiness.line_of_business : "${lineOfBusiness.code} - ${lineOfBusiness.line_of_business}";
       applicationType = lineOfBusiness.application_type;
       unitsController.text = lineOfBusiness.units.toString();
       capitalOfInvestmentController.text = currencyFormatter.format(lineOfBusiness.capital_investment);
@@ -58,21 +56,55 @@ class LineOfBusinessDialog {
                 children: [
                   Text("Line of Business", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
                   SizedBox(height: 4),
-                  InputControls.selectionFieldInput(
-                    context, selectedLineBusiness,
-                    ((val) {
-                      setState(() {
-                        selectedLineBusiness = val;
-                      });
-                    }),
-                    _lineBusinessSelection
+                  Autocomplete<String>(
+                    initialValue: TextEditingValue(text: selectedLineBusiness == "- Select Line of Business -" ? "" : selectedLineBusiness),
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text == '') {
+                        return const Iterable<String>.empty();
+                      }
+                      List<String> retList = [];
+                      retList.add(textEditingValue.text);
+                      retList.addAll(_lineBusinessSelection.where((String option) {
+                        selectedLineBusiness = textEditingValue.text;
+                        return option.contains(textEditingValue.text.toLowerCase());
+                      }));
+                      return retList;
+                    },
+                    onSelected: (String selection) {
+                      selectedLineBusiness = selection;
+                    },
+                    fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: 30,
+                        child: TextField(
+                          controller: controller,
+                          focusNode: focusNode,
+                          onEditingComplete: onEditingComplete,
+                          style: TextStyle(fontSize: 12),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(4.0))),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                          )
+                        ),
+                      );
+                    },
                   ),
-                  SizedBox(height: 4),
+                  // InputControls.selectionFieldInput(
+                  //   context, selectedLineBusiness,
+                  //   ((val) {
+                  //     setState(() {
+                  //       selectedLineBusiness = val;
+                  //     });
+                  //   }),
+                  //   _lineBusinessSelection
+                  // ),
+                  SizedBox(height: 8),
                   InputControls.radioButtonSelection(applicationType, "New", "Renew", (value) {
                     setState(() {
                       applicationType = value;
                     });
-                  }, title: "Application Type"),
+                  }, title: "Application Type", value3: "None"),
                   SizedBox(height: 4),
                   InputControls.textFieldInput(context, unitsController, title: "Units", keyboardType: TextInputType.number),
                   SizedBox(height: 4),
@@ -150,11 +182,12 @@ class LineOfBusinessDialog {
     //     capitalOfInvestmentController.text = "";
     //     break;
     // }
-    String _code = selectedLineBusiness.split(" - ")[0];
+    String _code = selectedLineBusiness.contains(" - ") ? selectedLineBusiness.split(" - ")[0] : "";
+    String lineBusiness = _code == "" ? selectedLineBusiness : selectedLineBusiness.substring(_code.length-1);
     LineOfBusinessModel retLineOfBusiness = LineOfBusinessModel(
       id: lineofBusiness == null ? "" : lineofBusiness.id,
       code: _code,
-      line_of_business: selectedLineBusiness.substring(_code.length-1),
+      line_of_business: lineBusiness,
       application_type: applicationType,
       capital_investment: capitalOfInvestmentController.text == "" ? 0 : double.parse(capitalOfInvestmentController.text.replaceAll(",", "")),
       gross_essential: grossEssentialController.text == "" ? 0 : double.parse(grossEssentialController.text.replaceAll(",", "")),

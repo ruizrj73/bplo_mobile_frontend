@@ -108,6 +108,8 @@ final businessBlockFloorNo = TextEditingController();
 final businessStreet = TextEditingController();
 final businessSubdivision = TextEditingController();
 
+String isSameAddress = "No";
+
 String ownerZipcode = zipcodeSelection.first;
 String ownerRegion = regionSelection.first;
 String ownerProvince = provinceSelection.first;
@@ -135,7 +137,6 @@ class BusinessAddressInfoView extends StatefulWidget {
 }
 
 class BusinessAddressInfoViewState extends State<BusinessAddressInfoView> {
-  String isSameAddress = "No";
   BusinessApplication _businessApplication = userController.activeBusinessApplication.value;
   
   @override
@@ -172,6 +173,7 @@ class BusinessAddressInfoViewState extends State<BusinessAddressInfoView> {
       businessSubdivision.text = "";
     }
     if ((_businessApplication.business_owner_address_info ?? []).isNotEmpty) {
+      isSameAddress = _businessApplication.business_owner_info.first.is_same ? "Yes" : "No";
       ownerZipcode = _businessApplication.business_owner_address_info.first.zip_code;
       ownerRegion = _businessApplication.business_owner_address_info.first.region;
       ownerProvince = _businessApplication.business_owner_address_info.first.province;
@@ -462,6 +464,7 @@ class BusinessAddressInfoViewState extends State<BusinessAddressInfoView> {
     _businessApplication.business_address_info = [bai];
     BusinessOwnerAddressInfoModel boai = BusinessOwnerAddressInfoModel(
       id: "",
+      is_same: isSameAddress == "Yes" ? true : false,
       region: ownerRegion,
       province: ownerProvince,
       city_municipality: ownerCityMunicipality,

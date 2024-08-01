@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Env {
   static String env = "live";
-  static String devIP = "192.168.1.3";
+  static String devIP = "192.168.56.1";
   static String liveIP = "143.198.91.135";
   static String livePort = "9009";
   static String devPort = "3000";
@@ -19,6 +19,6 @@ class Env {
   static Color copyrightBgColor = Colors.white;
 
   static String projectName = "Business Permit & Licensing System";
-  static String lguName = "Local Government Unit";
-  static String lguAddress = "City/Municipality, Cebu";
+  static String lguName = "S.A.Y.A.W.";
+  static String lguAddress = "\"Strategic Assessment of Your Assets and Worth (SAYAW) para sa Buhis\"";
 }

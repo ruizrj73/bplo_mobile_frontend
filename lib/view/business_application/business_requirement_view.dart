@@ -115,7 +115,7 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   children: [
                     Icon(MaterialIcons.add_circle, size: 15),
                     SizedBox(width: 4),
-                    Text('${lineOfBusiness == null ? "Add" : "Update"} Line of Business', style: TextStyle(fontSize: 12)),
+                    Text('Add Line of Business', style: TextStyle(fontSize: 12)),
                     SizedBox(width: 4),
                     Text('(Refer to BIR Registration)', style: TextStyle(fontSize: 10)),
                   ],
@@ -123,69 +123,139 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
               ),
               Column(
                 children: <Widget>[...(lineOfBusiness ?? []).map((_lineOfBusiness) =>
-                  Column(
+                  Stack(
+                    alignment: Alignment.center,
                     children: [
-                      SizedBox(height: 8),
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: ThemeColor.primaryLighter,
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(10)
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Code: ${_lineOfBusiness.code}', style: TextStyle(fontSize: 14, color: ThemeColor.warning)),
-                            SizedBox(height: 4),
-                            Text('Description:', style: TextStyle(fontSize: 12, color: ThemeColor.success)),
-                            SizedBox(height: 4),
-                            Text(_lineOfBusiness.line_of_business, style: TextStyle(fontSize: 12, color: ThemeColor.success)),
-                            Row(
-                              children: [
-                                Text('Type:', style: TextStyle(fontSize: 10, color: ThemeColor.success, fontWeight: FontWeight.w800)),
-                                SizedBox(width: 8),
-                                SizedBox(
-                                  height: 25,
-                                  width: 25,
-                                  child: Radio(
-                                    value: "New",
-                                    groupValue: _lineOfBusiness.application_type,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _lineOfBusiness.application_type = value;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                Text("New", style: TextStyle(fontSize: 10, color: ThemeColor.disabledText)),
-                                SizedBox(width: 8),
-                                SizedBox(
-                                  height: 25,
-                                  width: 25,
-                                  child: Radio(
-                                    value: "Renew",
-                                    groupValue: _lineOfBusiness.application_type,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _lineOfBusiness.application_type = value;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                Text("Renew", style: TextStyle(fontSize: 10, color: ThemeColor.disabledText)),
-                              ],
+                      Column(
+                        children: [
+                          SizedBox(height: 8),
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                              color: ThemeColor.primaryLighter,
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(10)
+                              ),
                             ),
-                            SizedBox(height: 4),
-                            Text('Units: ${_lineOfBusiness.units}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
-                            SizedBox(height: 4),
-                            Text('Capital Investment: PHP ${currencyFormatter.format(_lineOfBusiness.capital_investment)}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
-                            SizedBox(height: 4),
-                            Text('Gross Essential: PHP ${currencyFormatter.format(_lineOfBusiness.gross_essential)}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
-                            SizedBox(height: 4),
-                            Text('Gross Non-Essential: PHP ${currencyFormatter.format(_lineOfBusiness.gross_non_essential)}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Code: ${_lineOfBusiness.code}', style: TextStyle(fontSize: 14, color: ThemeColor.warning)),
+                                SizedBox(height: 4),
+                                Text('Description:', style: TextStyle(fontSize: 12, color: ThemeColor.success)),
+                                SizedBox(height: 4),
+                                Text(_lineOfBusiness.line_of_business, style: TextStyle(fontSize: 12, color: ThemeColor.success)),
+                                Row(
+                                  children: [
+                                    Text('Type:', style: TextStyle(fontSize: 10, color: ThemeColor.success, fontWeight: FontWeight.w800)),
+                                    SizedBox(width: 8),
+                                    SizedBox(
+                                      height: 25,
+                                      width: 25,
+                                      child: Radio(
+                                        value: "New",
+                                        groupValue: _lineOfBusiness.application_type,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _lineOfBusiness.application_type = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Text("New", style: TextStyle(fontSize: 10, color: ThemeColor.disabledText)),
+                                    SizedBox(width: 8),
+                                    SizedBox(
+                                      height: 25,
+                                      width: 25,
+                                      child: Radio(
+                                        value: "Renew",
+                                        groupValue: _lineOfBusiness.application_type,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _lineOfBusiness.application_type = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Text("Renew", style: TextStyle(fontSize: 10, color: ThemeColor.disabledText)),
+                                    SizedBox(width: 8),
+                                    SizedBox(
+                                      height: 25,
+                                      width: 25,
+                                      child: Radio(
+                                        value: "None",
+                                        groupValue: _lineOfBusiness.application_type,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _lineOfBusiness.application_type = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Text("None", style: TextStyle(fontSize: 10, color: ThemeColor.disabledText)),
+                                  ],
+                                ),
+                                SizedBox(height: 4),
+                                Text('Units: ${_lineOfBusiness.units}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                                SizedBox(height: 4),
+                                Text('Capital Investment: PHP ${currencyFormatter.format(_lineOfBusiness.capital_investment)}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                                SizedBox(height: 4),
+                                Text('Gross Essential: PHP ${currencyFormatter.format(_lineOfBusiness.gross_essential)}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                                SizedBox(height: 4),
+                                Text('Gross Non-Essential: PHP ${currencyFormatter.format(_lineOfBusiness.gross_non_essential)}', style: TextStyle(fontSize: 10, color: ThemeColor.disabledText, fontWeight: FontWeight.w800)),
+                              ],
+                            )
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        top: 5,
+                        right: 0,
+                        child: Row(
+                          children: [
+                            InkWell(
+                              onTap: (() {
+                                LineOfBusinessDialog().lineOfBusinessShowDialog(context, _lineOfBusiness).then((value) {
+                                  setState(() {
+                                    if (value != null) {
+                                      lineOfBusiness.remove(_lineOfBusiness);
+                                      lineOfBusiness.add(value);
+                                    }
+                                  });
+                                });
+                              }),
+                              child: Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: ThemeColor.primaryNavbarBg,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(5)
+                                  ),
+                                ),
+                                child: Icon(Icons.edit, size: 16, color: ThemeColor.primaryText),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            InkWell(
+                              onTap: (() {
+                                setState(() {
+                                  lineOfBusiness.remove(_lineOfBusiness);
+                                });
+                              }),
+                              child: Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: ThemeColor.warning,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(5)
+                                  ),
+                                ),
+                                child: Icon(Icons.delete, size: 16, color: ThemeColor.primaryText),
+                              ),
+                            ),
                           ],
                         )
                       ),
@@ -246,32 +316,87 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
               ),
               Column(
                 children: <Widget>[...(_businessApplication.line_of_business_measure_pax ?? []).map((_measurePax) =>
-                  Column(
+                  Stack(
+                    alignment: Alignment.center,
                     children: [
-                      SizedBox(height: 8),
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: ThemeColor.primaryLighter,
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(10)
+                      Column(
+                        children: [
+                          SizedBox(height: 8),
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                              color: ThemeColor.primaryLighter,
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(10)
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Line of Business:', style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
+                                SizedBox(height: 4),
+                                Text(_measurePax.line_of_business, style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
+                                SizedBox(height: 4),
+                                Text('Description:', style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
+                                SizedBox(height: 4),
+                                Text(_measurePax.measure_description, style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
+                                SizedBox(height: 4),
+                                Text('Number of Unit: ${_measurePax.number_of_units}', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
+                                SizedBox(height: 4),
+                                Text('Capacity: ${_measurePax.capacity}', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
+                              ],
+                            )
                           ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        ],
+                      ),
+                      Positioned(
+                        top: 5,
+                        right: 0,
+                        child: Row(
                           children: [
-                            Text('Line of Business:', style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
-                            SizedBox(height: 4),
-                            Text(_measurePax.line_of_business, style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
-                            SizedBox(height: 4),
-                            Text('Description:', style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
-                            SizedBox(height: 4),
-                            Text(_measurePax.measure_description, style: TextStyle(fontSize: 12, color: ThemeColor.warning)),
-                            SizedBox(height: 4),
-                            Text('Number of Unit: ${_measurePax.number_of_units}', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
-                            SizedBox(height: 4),
-                            Text('Capacity: ${_measurePax.capacity}', style: TextStyle(fontSize: 10, color: ThemeColor.success)),
+                            InkWell(
+                              onTap: (() {
+                                MeasurePaxDialog().measurePaxShowDialog(context, _measurePax, lineOfBusiness).then((value) {
+                                  setState(() {
+                                    if (value != null) {
+                                      _businessApplication.line_of_business_measure_pax.remove(_measurePax);
+                                      _businessApplication.line_of_business_measure_pax.add(value);
+                                    }
+                                  });
+                                });
+                              }),
+                              child: Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: ThemeColor.primaryNavbarBg,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(5)
+                                  ),
+                                ),
+                                child: Icon(Icons.edit, size: 16, color: ThemeColor.primaryText),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            InkWell(
+                              onTap: (() {
+                                setState(() {
+                                  _businessApplication.line_of_business_measure_pax.remove(_measurePax);
+                                });
+                              }),
+                              child: Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: ThemeColor.warning,
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(5)
+                                  ),
+                                ),
+                                child: Icon(Icons.delete, size: 16, color: ThemeColor.primaryText),
+                              ),
+                            ),
                           ],
                         )
                       ),

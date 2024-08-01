@@ -11,9 +11,18 @@ class DBScripts {
       organization_type TEXT,
       business_name TEXT,
       trade_name TEXT,
+      business_started_date TEXT,
+      business_permit_no TEXT,
+      business_permit_issued_date TEXT,
+      bir_permit_no TEXT,
+      bir_issued_date TEXT,
       tin_no TEXT,
       dtiseccda_registration_date TEXT,
       dtiseccda_registration_no TEXT,
+      ctc_no TEXT,
+      ctc_issued_date TEXT,
+      plate_no TEXT,
+      signage_name TEXT,
       remarks TEXT,
       application_status TEXT
     )""";
@@ -36,11 +45,18 @@ class DBScripts {
   String createBusinessOwnerInfoTable() {
     return """CREATE TABLE IF NOT EXISTS businessownerinfo(
       id TEXT,
+      has_manager TEXT,
+      is_same TEXT,
       first_name TEXT,
       middle_name TEXT,
       last_name TEXT,
       suffix TEXT,
       gender TEXT,
+      corp_first_name TEXT,
+      corp_middle_name TEXT,
+      corp_last_name TEXT,
+      corp_suffix TEXT,
+      corp_gender TEXT,
       remarks TEXT,
       baId TEXT
     )""";
@@ -52,6 +68,9 @@ class DBScripts {
       mobile_number TEXT,
       tel_fax_number TEXT,
       email_address TEXT,
+      business_mobile_number TEXT,
+      business_tel_fax_number TEXT,
+      business_email_address TEXT,
       remarks TEXT,
       baId TEXT
     )""";
@@ -79,6 +98,7 @@ class DBScripts {
   String createBusinessOwnerAddressInfoTable() {
     return """CREATE TABLE IF NOT EXISTS businessowneraddressinfo(
       id TEXT,
+      is_same TEXT,
       region TEXT,
       province TEXT,
       city_municipality TEXT,
@@ -105,6 +125,10 @@ class DBScripts {
       number_female_employee INTEGER,
       total_number_employee_establishment INTEGER,
       total_number_employee_residing_lgu INTEGER,
+      supervisor INTEGER,
+      rank_and_file INTEGER,
+      cashier INTEGER,
+      on_field INTEGER,
       has_delivery_vehicles TEXT,
       total_delivery_vehicle_van_truck INTEGER,
       total_delivery_vehicle_motorcycle INTEGER,
@@ -142,6 +166,86 @@ class DBScripts {
       measure_description TEXT,
       number_of_units INTEGER,
       capacity INTEGER,
+      remarks TEXT,
+      baId TEXT
+    )""";
+  }
+
+  String createBusinessFindingsTable() {
+    return """CREATE TABLE IF NOT EXISTS businessfindings(
+      id TEXT,
+      remarks TEXT,
+      baId TEXT
+    )""";
+  }
+
+  String createBusinessNoticeToComplyTable() {
+    return """CREATE TABLE IF NOT EXISTS businessnoticetocomply(
+      id TEXT,
+      remarks TEXT,
+      baId TEXT
+    )""";
+  }
+
+  String createBusinessRemarksTable() {
+    return """CREATE TABLE IF NOT EXISTS businessremarks(
+      id TEXT,
+      remarks TEXT,
+      baId TEXT
+    )""";
+  }
+
+  String createLessorInfoTable() {
+    return """CREATE TABLE IF NOT EXISTS lessorinfo(
+      id TEXT,
+      first_name TEXT,
+      middle_name TEXT,
+      last_name TEXT,
+      suffix TEXT,
+      region TEXT,
+      province TEXT,
+      city_municipality TEXT,
+      barangay TEXT,
+      zip_code TEXT,
+      house_bldg_no TEXT,
+      building_name TEXT,
+      lot_unit_no TEXT,
+      block_floor_no TEXT,
+      street TEXT,
+      subdivision TEXT,
+      mobile_number TEXT,
+      tel_fax_number TEXT,
+      email_address TEXT,
+      remarks TEXT,
+      baId TEXT
+    )""";
+  }
+
+  String createBookkeeperInfoTable() {
+    return """CREATE TABLE IF NOT EXISTS bookkeeperinfo(
+      id TEXT,
+      first_name TEXT,
+      middle_name TEXT,
+      last_name TEXT,
+      suffix TEXT,
+      mobile_number TEXT,
+      tel_fax_number TEXT,
+      email_address TEXT,
+      accounting_audit_certificate TEXT,
+      remarks TEXT,
+      baId TEXT
+    )""";
+  }
+
+  String createAccountingFirmInfoTable() {
+    return """CREATE TABLE IF NOT EXISTS accountingfirminfo(
+      id TEXT,
+      name TEXT,
+      address TEXT,
+      mobile_number TEXT,
+      tel_fax_number TEXT,
+      email_address TEXT,
+      accounting_audit_certificate TEXT,
       remarks TEXT,
       baId TEXT
     )""";

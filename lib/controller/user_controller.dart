@@ -17,6 +17,7 @@ class UserController extends GetxController {
   RxString suffix = "".obs;
   RxString email = "".obs;
   RxString contactnumber = "".obs;
+  RxString clusterGroup = "".obs;
   RxString userType = "".obs;
   RxString typeId = "".obs;
   RxString typeName = "".obs;
@@ -40,6 +41,7 @@ class UserController extends GetxController {
   setSuffix(String _suffix) => suffix.value = _suffix;
   setEmail(String _email) => email.value = _email;
   setContactNumber(String _contactnumber) => contactnumber.value = _contactnumber;
+  setClusterGroup(String _clusterGroup) => clusterGroup.value = _clusterGroup;
   setUserType(String _userType) => userType.value = _userType;
   setTypeId(String _typeId) => typeId.value = _typeId;
   setTypeName(String _typeName) => typeName.value = _typeName;
@@ -55,6 +57,7 @@ class UserController extends GetxController {
   String getSuffix() => suffix.value;
   String getEmail() => email.value;
   String getContactNumber() => contactnumber.value;
+  String getClusterGroup() => clusterGroup.value;
   String getUserType() => userType.value;
   String getTypeId() => typeId.value;
   String getTypeName() => typeName.value;
@@ -80,6 +83,7 @@ class UserController extends GetxController {
     suffix.value = "";
     email.value = "";
     contactnumber.value = "";
+    clusterGroup.value = "";
     userType.value = "";
     typeId.value = "";
     typeName.value = "";

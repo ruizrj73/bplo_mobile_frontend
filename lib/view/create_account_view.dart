@@ -26,6 +26,17 @@ class CreateAccountViewState extends State<CreateAccountView> {
   final _suffixController = TextEditingController();
   final _emailAddressController = TextEditingController();
   final _contactNoController = TextEditingController();
+  String clusterGroup = "";
+
+  List<String> clusterGroupSelection = [
+    "",
+    "Cluster 1",
+    "Cluster 2",
+    "Cluster 3",
+    "Cluster 4",
+    "Cluster 5",
+    "Cluster 6",
+  ];
 
   @override
   void initState() {
@@ -166,6 +177,28 @@ class CreateAccountViewState extends State<CreateAccountView> {
                       maxLength: 9,
                     ),
                   ),
+                  SizedBox(height: 16),
+                  Text("Cluster Group :", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                  DropdownButton<String>(
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: ThemeColor.secondary,
+                    ),
+                    hint: const Text(''),
+                    isExpanded: true,
+                    value: clusterGroup,
+                    onChanged: (val) {
+                      setState(() {
+                        clusterGroup = val;
+                      });
+                    },
+                    items: clusterGroupSelection.map((String items) {
+                      return DropdownMenuItem( 
+                        value: items, 
+                        child: Text(items, style: TextStyle(fontSize: 12)), 
+                      ); 
+                    }).toList(), 
+                  ),
                 ],
               ),
             ),
@@ -227,6 +260,10 @@ class CreateAccountViewState extends State<CreateAccountView> {
       popupDialog(context, NotifHeader.error, "Invalid contact number.");
       return;
     }
+    if (clusterGroup.trim() == "") {
+      popupDialog(context, NotifHeader.error, "Please select Cluster Group.");
+      return;
+    }
 
     networkConnectionController.checkConnectionStatus().then((connResult) async {
       if (connResult) {
@@ -249,6 +286,7 @@ class CreateAccountViewState extends State<CreateAccountView> {
               userController.setSuffix(_suffixController.text.trim());
               userController.setEmail(_emailAddressController.text.trim());
               userController.setContactNumber("09" + _contactNoController.text.trim());
+              userController.setClusterGroup(clusterGroup);
               
               Get.back(result: true);
             }

@@ -44,6 +44,9 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         case "Renew":
           _formTitle = "Renew Business Permit Application";
           break;
+        case "None":
+          _formTitle = "No Business Permit";
+          break;
         default:
           _formTitle = "New Business Permit Application";
           break;
@@ -257,7 +260,7 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         if (viewedTab == 1) {
           if (userController.activeBusinessApplication.value.application_status == null) {
             BusinessBasicInfoView.businessBasicInfoEntry().then((value) {
-              userController.activeBusinessApplication.value.application_status = "Waiting List";
+              userController.activeBusinessApplication.value.application_status = "Recorded"; //"Waiting List";
               submitPreBusinessApplication();
             });
           } else {
@@ -343,11 +346,11 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         userController.activeBusinessApplication.value.application_type = userController.applicationType.value;
         userController.activeBusinessApplication.value.user_id = userController.getId();
         userController.activeBusinessApplication.value.user_name = userController.getFullName();
-        userController.activeBusinessApplication.value.remarks = "Documentary  requirements, still waiting for approval.";
+        userController.activeBusinessApplication.value.remarks = ""; // "Documentary  requirements, still waiting for approval.";
 
         await saveBusinessApplication(userController.activeBusinessApplication.value).then((value) {
           EasyLoading.dismiss();
-          popupDialog(context, NotifHeader.success, "We've received you send request. We will notify you for the next step while your account is in verification.").then((value) {
+          popupDialog(context, NotifHeader.success, "Business Survey and Assessment Sheet, Successfully Saved.").then((value) {
             fileController.listFileAttachment.value.fileAttachments = [];
             userController.activeBusinessApplication.value = BusinessApplication();
             Get.back();
@@ -367,7 +370,8 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         EasyLoading.show();
 
         String fileName = "Business/Attachment/${userController.getId()}/BusinessRequirement/${DateTime.now().millisecondsSinceEpoch.toString()}";
-        for (var e in fileController.listFileAttachment.value.fileAttachments) {
+        
+        for (var e in (fileController.listFileAttachment?.value?.fileAttachments ?? [])) {
           if (e.files.isNotEmpty) {
             await fileController.uploadFile(e.files, fileName).then((_imageUrls) async {
               if (_imageUrls.isNotEmpty) {
@@ -380,7 +384,7 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         }
 
         List<AttachmentModel> _attachments = [];
-        for (var e in fileController.listFileAttachment.value.fileAttachments) {
+        for (var e in (fileController.listFileAttachment?.value?.fileAttachments ?? [])) {
           if (e.url.isNotEmpty) {
             for (var u in e.url) {
               AttachmentModel _att = AttachmentModel(
@@ -402,7 +406,7 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
 
         await updateBusinessApplication(userController.activeBusinessApplication.value).then((value) {
           EasyLoading.dismiss();
-          popupDialog(context, NotifHeader.success, "We've received you send request. We will notify you for the next step while your account is in verification.").then((value) {
+          popupDialog(context, NotifHeader.success, "Complete Business Survey and Assessment Sheet, Successfully Recorded").then((value) {
             fileController.listFileAttachment.value.fileAttachments = [];
             Get.back();
           });

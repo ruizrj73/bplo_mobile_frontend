@@ -24,7 +24,7 @@ class LocalDB extends GetxController {
       // Set the path to the database. Note: Using the `join` function from the
       // `path` package is best practice to ensure the path is correctly
       // constructed for each platform.
-      join(await getDatabasesPath(), 'localData4'),
+      join(await getDatabasesPath(), 'localData5'),
       // When the database is first created, create a table to store dogs.
       onCreate: (db, version) async {
         // Run the CREATE TABLE statement on the database.
@@ -37,6 +37,12 @@ class LocalDB extends GetxController {
         await db.execute(DBScripts().createBusinessOperationInfoTable());
         await db.execute(DBScripts().createLineOfBusinessTable());
         await db.execute(DBScripts().createLineOfBusinessMeasurePaxTable());
+        await db.execute(DBScripts().createBusinessFindingsTable());
+        await db.execute(DBScripts().createBusinessNoticeToComplyTable());
+        await db.execute(DBScripts().createBusinessRemarksTable());
+        await db.execute(DBScripts().createLessorInfoTable());
+        await db.execute(DBScripts().createBookkeeperInfoTable());
+        await db.execute(DBScripts().createAccountingFirmInfoTable());
       },
       // Set the version. This executes the onCreate function and provides a
       // path to perform database upgrades and downgrades.
@@ -170,6 +176,56 @@ class LocalDB extends GetxController {
           }
         });
 
+        await db.rawQuery("SELECT * FROM businessfindings WHERE baId = '${_bussAppTemp.id}'").then((List<Map<String, dynamic>> data) {
+          if (data != null && data.isNotEmpty) {
+            _bussAppTemp.business_findings = [];
+            data.forEach((dta) {
+              _bussAppTemp.business_findings.add(BusinessFindingsModel.fromJson(dta));
+            });
+          }
+        });
+
+        await db.rawQuery("SELECT * FROM businessnoticetocomply WHERE baId = '${_bussAppTemp.id}'").then((List<Map<String, dynamic>> data) {
+          if (data != null && data.isNotEmpty) {
+            _bussAppTemp.business_notice_to_comply = [];
+            data.forEach((dta) {
+              _bussAppTemp.business_notice_to_comply.add(BusinessNoticeToComplyModel.fromJson(dta));
+            });
+          }
+        });
+
+        await db.rawQuery("SELECT * FROM businessremarks WHERE baId = '${_bussAppTemp.id}'").then((List<Map<String, Object>> data) {
+          if (data != null && data.isNotEmpty) {
+            data.forEach((_arx) {
+              _bussAppTemp.business_remarks = BusinessRemarksModel.fromJson(_arx);
+            });
+          }
+        });
+
+        await db.rawQuery("SELECT * FROM lessorinfo WHERE baId = '${_bussAppTemp.id}'").then((List<Map<String, Object>> data) {
+          if (data != null && data.isNotEmpty) {
+            data.forEach((_arx) {
+              _bussAppTemp.lessor_info = LessorInfoModel.fromJson(_arx);
+            });
+          }
+        });
+
+        await db.rawQuery("SELECT * FROM bookkeeperinfo WHERE baId = '${_bussAppTemp.id}'").then((List<Map<String, Object>> data) {
+          if (data != null && data.isNotEmpty) {
+            data.forEach((_arx) {
+              _bussAppTemp.bookkeeper_info = BookkeeperInfoModel.fromJson(_arx);
+            });
+          }
+        });
+
+        await db.rawQuery("SELECT * FROM accountingfirminfo WHERE baId = '${_bussAppTemp.id}'").then((List<Map<String, Object>> data) {
+          if (data != null && data.isNotEmpty) {
+            data.forEach((_arx) {
+              _bussAppTemp.accounting_firm_info = AccountingFirmInfoModel.fromJson(_arx);
+            });
+          }
+        });
+
         businessApplicationList.add(_bussAppTemp);
       });
     }
@@ -289,6 +345,76 @@ class LocalDB extends GetxController {
         });
       }
 
+      if (_businessApplication.business_findings != null && _businessApplication.business_findings.isNotEmpty) {
+        _businessApplication.business_findings.forEach((_data) async {
+          Map<String, Object> _datax = _data.toJson();
+          _datax["baId"] = _businessApplication.id;
+
+          await db.insert(
+            'businessfindings',
+            _datax,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        });
+      }
+
+      if (_businessApplication.business_notice_to_comply != null && _businessApplication.business_notice_to_comply.isNotEmpty) {
+        _businessApplication.business_notice_to_comply.forEach((_data) async {
+          Map<String, Object> _datax = _data.toJson();
+          _datax["baId"] = _businessApplication.id;
+
+          await db.insert(
+            'businessnoticetocomply',
+            _datax,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        });
+      }
+
+      if (_businessApplication.business_remarks != null) {
+        Map<String, Object> _data = _businessApplication.business_remarks.toJson();
+        _data["baId"] = _businessApplication.id;
+
+        await db.insert(
+          'businessremarks',
+          _data,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+
+      if (_businessApplication.lessor_info != null) {
+        Map<String, Object> _data = _businessApplication.lessor_info.toJson();
+        _data["baId"] = _businessApplication.id;
+
+        await db.insert(
+          'lessorinfo',
+          _data,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+
+      if (_businessApplication.bookkeeper_info != null) {
+        Map<String, Object> _data = _businessApplication.bookkeeper_info.toJson();
+        _data["baId"] = _businessApplication.id;
+
+        await db.insert(
+          'bookkeeperinfo',
+          _data,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+
+      if (_businessApplication.accounting_firm_info != null) {
+        Map<String, Object> _data = _businessApplication.accounting_firm_info.toJson();
+        _data["baId"] = _businessApplication.id;
+
+        await db.insert(
+          'accountingfirminfo',
+          _data,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+
       await localBusinessApplication().then((value) {
         return value;
       });
@@ -348,6 +474,42 @@ class LocalDB extends GetxController {
     
     await db.delete(
       'lineofbusinessmeasurepax',
+      where: 'baId = ?',
+      whereArgs: [_businessApplication.id],
+    );
+    
+    await db.delete(
+      'businessfindings',
+      where: 'baId = ?',
+      whereArgs: [_businessApplication.id],
+    );
+    
+    await db.delete(
+      'businessnoticetocomply',
+      where: 'baId = ?',
+      whereArgs: [_businessApplication.id],
+    );
+    
+    await db.delete(
+      'businessremarks',
+      where: 'baId = ?',
+      whereArgs: [_businessApplication.id],
+    );
+    
+    await db.delete(
+      'lessorinfo',
+      where: 'baId = ?',
+      whereArgs: [_businessApplication.id],
+    );
+    
+    await db.delete(
+      'bookkeeperinfo',
+      where: 'baId = ?',
+      whereArgs: [_businessApplication.id],
+    );
+    
+    await db.delete(
+      'accountingfirminfo',
       where: 'baId = ?',
       whereArgs: [_businessApplication.id],
     );

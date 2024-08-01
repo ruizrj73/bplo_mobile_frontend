@@ -378,6 +378,7 @@ class UserProfileViewState extends State<UserProfileView> {
                 userController.getSuffix(),
                 userController.getEmail(),
                 userController.getContactNumber(),
+                userController.getClusterGroup(),
                 "",
                 "",
                 "",

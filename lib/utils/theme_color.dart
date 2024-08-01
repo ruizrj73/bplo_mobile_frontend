@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 
 class ThemeColor {
-  static Color primary = Colors.blueAccent;
-  static Color primaryLighter = Colors.blue[200];
-  static Color primaryGlow = Colors.blue[900];
+  static Color primary = Colors.greenAccent[700];
+  static Color primaryLighter = Colors.green[200];
+  static Color primaryGlow = Colors.green[700];
   static Color primaryText = Colors.white;
   static Color primaryBg = Colors.white;
   static Color primaryNavbarBg = Colors.blueAccent;

@@ -192,7 +192,7 @@ class AppLoadViewState extends State<AppLoadView> {
             decoration: BoxDecoration(
               color: Colors.white,
               image: DecorationImage(
-                fit: BoxFit.none,
+                fit: BoxFit.contain,
                 image: AssetImage("assets/images/splash.png")
               )
             )

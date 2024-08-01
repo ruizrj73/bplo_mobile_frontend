@@ -124,7 +124,7 @@ class InputControls {
     );
   }
 
-  static Widget radioButtonSelection(String groupValueX, String value1, String value2, Function(String) onChangedX, {String title = ""}) {
+  static Widget radioButtonSelection(String groupValueX, String value1, String value2, Function(String) onChangedX, {String title = "", String value3 = ""}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -153,6 +153,17 @@ class InputControls {
               ),
             ),
             Text(value2, style: TextStyle(fontSize: 12)),
+            value3 == "" ? Container() : SizedBox(width: 16),
+            value3 == "" ? Container() : SizedBox(
+              height: 30,
+              width: 30,
+              child: Radio(
+                value: value3,
+                groupValue: groupValueX,
+                onChanged: onChangedX
+              ),
+            ),
+            value3 == "" ? Container() : Text(value3, style: TextStyle(fontSize: 12)),
           ],
         ),
       ]

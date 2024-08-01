@@ -1,5 +1,6 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables, no_leading_underscores_for_local_identifiers, avoid_function_literals_in_foreach_calls
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,8 @@ import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:shimmer/shimmer.dart';
+
+import '../utils/notification_header.dart';
 
 class TransactionsView extends StatefulWidget {
   // ignore: use_key_in_widget_constructors
@@ -244,14 +247,15 @@ class TransactionsViewState extends State<TransactionsView> {
                                       ),
                                       InkWell(
                                         onTap: () {
-                                          setState(() {
-                                            if (viewApplicationShow[businessApp.id] != true) {
-                                              viewApplicationShow = {"": false};
-                                              viewApplicationShow[businessApp.id] = true;
-                                            } else {
-                                              viewApplicationShow = {"": false};
-                                            }
-                                          });
+                                          popupMenu(context, businessApp);
+                                          // setState(() {
+                                          //   if (viewApplicationShow[businessApp.id] != true) {
+                                          //     viewApplicationShow = {"": false};
+                                          //     viewApplicationShow[businessApp.id] = true;
+                                          //   } else {
+                                          //     viewApplicationShow = {"": false};
+                                          //   }
+                                          // });
                                         },
                                         child: Container(
                                           width: 75,
@@ -390,6 +394,9 @@ class TransactionsViewState extends State<TransactionsView> {
   
   String getStatus(String status) {
     switch (status) {
+      case "Recorded":
+        return "Recorded";
+        break;
       case "Waiting List":
         return "Wait List";
         break;
@@ -431,6 +438,9 @@ class TransactionsViewState extends State<TransactionsView> {
 
   Color getStatusColor(String status) {
     switch (status) {
+      case "Recorded":
+        return ThemeColor.warning;
+        break;
       case "Waiting List":
         return ThemeColor.warning;
         break;
@@ -470,6 +480,970 @@ class TransactionsViewState extends State<TransactionsView> {
     }
   }
 
+  Future<String> popupMenu(BuildContext context, BusinessApplication businessApp) {
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        actionsPadding: EdgeInsets.all(0),
+        titlePadding: EdgeInsets.all(16),
+        contentPadding: EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16))
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "BIN: ${businessApp.transaction_no}", 
+              style: TextStyle(
+                fontSize: 12, 
+                fontWeight: FontWeight.w800
+              ),
+            ),
+            Text(
+              businessApp.business_name, 
+              style: TextStyle(
+                fontSize: 12, 
+                fontWeight: FontWeight.w800
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 160,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              InkWell(
+                onTap: () {
+                  viewApplication(businessApp);
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: 150,
+                  height: 30,
+                  decoration: new BoxDecoration(
+                    color: ThemeColor.primaryBg,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 2,
+                        color: ThemeColor.disabled,
+                        offset: Offset(1,1)
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(MaterialIcons.description, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          "View Assessment",
+                          style: TextStyle(
+                            color: ThemeColor.disabledText,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 4),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  addImage(businessApp);
+                },
+                child: Container(
+                  width: 150,
+                  height: 30,
+                  decoration: new BoxDecoration(
+                    color: ThemeColor.primaryBg,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 2,
+                        color: ThemeColor.disabled,
+                        offset: Offset(1,1)
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(MaterialIcons.image, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          "Add/View Image",
+                          style: TextStyle(
+                            color: ThemeColor.disabledText,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 4),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  addFindings(businessApp);
+                },
+                child: Container(
+                  width: 150,
+                  height: 30,
+                  decoration: new BoxDecoration(
+                    color: ThemeColor.primaryBg,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 2,
+                        color: ThemeColor.disabled,
+                        offset: Offset(1,1)
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(MaterialIcons.view_list, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          "Add Findings",
+                          style: TextStyle(
+                            color: ThemeColor.disabledText,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 4),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  addNoticeToComply(businessApp);
+                },
+                child: Container(
+                  width: 150,
+                  height: 30,
+                  decoration: new BoxDecoration(
+                    color: ThemeColor.primaryBg,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 2,
+                        color: ThemeColor.disabled,
+                        offset: Offset(1,1)
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(MaterialIcons.error_outline, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          "Notice to Comply",
+                          style: TextStyle(
+                            color: ThemeColor.disabledText,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 4),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  addRemarks(businessApp);
+                },
+                child: Container(
+                  width: 150,
+                  height: 30,
+                  decoration: new BoxDecoration(
+                    color: ThemeColor.primaryBg,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 2,
+                        color: ThemeColor.disabled,
+                        offset: Offset(1,1)
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(MaterialIcons.assignment, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          "Add Remarks",
+                          style: TextStyle(
+                            color: ThemeColor.disabledText,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 28),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: 150,
+                  height: 30,
+                  decoration: new BoxDecoration(
+                    color: ThemeColor.warning,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 2,
+                        color: ThemeColor.disabled,
+                        offset: Offset(1,1)
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(MaterialIcons.cancel, size: 20, color: ThemeColor.primaryText),
+                        SizedBox(width: 8),
+                        Text(
+                          "Close",
+                          style: TextStyle(
+                            color: ThemeColor.primaryText,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[],
+      ),
+    );
+  }
+
+  Future<String> popupFindings(BuildContext context, BusinessApplication businessApp) {
+    final _remarksController = TextEditingController();
+
+    List<BusinessFindingsModel> tempFindings = [];
+    (businessApp.business_findings ?? []).forEach((f) {
+      tempFindings.add(f);
+    });
+
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(builder: ((context, setState) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.zero,
+            actionsPadding: EdgeInsets.all(0),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(16))
+            ),
+            title: Container(
+              height: 30,
+              padding: EdgeInsets.only(left: 20),
+              decoration: BoxDecoration(
+                color: ThemeColor.warning,
+                borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(16), 
+                    bottom: Radius.circular(0)
+                  )
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Findings', style: TextStyle(fontWeight: FontWeight.w800, color: ThemeColor.primaryText, fontSize: 14)),
+                ],
+              ),
+            ),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width - 100,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "BIN: ${businessApp.transaction_no}", 
+                        style: TextStyle(
+                          fontSize: 12, 
+                          fontWeight: FontWeight.w800
+                        ),
+                      ),
+                      Text(
+                        businessApp.business_name, 
+                        style: TextStyle(
+                          fontSize: 12, 
+                          fontWeight: FontWeight.w800
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: ThemeColor.primaryBg,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      border: Border.all(
+                        width: .5,
+                        color: ThemeColor.disabled,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(0, 1),
+                          blurRadius: 4,
+                          color: ThemeColor.secondary.withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          width: MediaQuery.of(context).size.width - 150,
+                          child: TextField(
+                            controller: _remarksController,
+                            style: TextStyle(fontSize: 11),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            if (_remarksController.text == "") return;
+                            setState(() {
+                              tempFindings.add(new BusinessFindingsModel(
+                                id: "",
+                                remarks: _remarksController.text,
+                              ));
+                              _remarksController.text = "";
+                            });
+                          },
+                          child: Container(
+                            width: 30,
+                            height: 80,
+                            decoration: new BoxDecoration(
+                              color: ThemeColor.primary,
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(6),
+                                bottomRight: Radius.circular(6),
+                              )
+                            ),
+                            child: Center(
+                              child: Icon(
+                                MaterialIcons.add,
+                                color: ThemeColor.primaryText,
+                                size: 25,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height/4,
+                    child: SingleChildScrollView(
+                      reverse: true,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[...(tempFindings ?? []).map((ba) =>
+                          Column(
+                            children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: ThemeColor.primaryBg,
+                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  border: Border.all(
+                                    width: .5,
+                                    color: ThemeColor.disabled,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      offset: Offset(0, 1),
+                                      blurRadius: 4,
+                                      color: ThemeColor.secondary.withOpacity(0.3),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(8),
+                                      width: MediaQuery.of(context).size.width - 150,
+                                      child: Text(
+                                        ba.remarks,
+                                        style: TextStyle(
+                                          fontSize: 11, 
+                                        ),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          tempFindings.remove(ba);
+                                        });
+                                      },
+                                      child: Container(
+                                        width: 30,
+                                        height: 80,
+                                        decoration: new BoxDecoration(
+                                          color: ThemeColor.warning,
+                                          shape: BoxShape.rectangle,
+                                          borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(6),
+                                            bottomRight: Radius.circular(6),
+                                          )
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            MaterialIcons.delete,
+                                            color: ThemeColor.primaryText,
+                                            size: 25,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                            ],
+                          )
+                        ).toList()],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: ThemeColor.primaryBg,
+                        fixedSize: Size(130, 30),
+                        foregroundColor: Colors.black,
+                        shadowColor: Colors.black
+                      ),
+                      onPressed: () => Navigator.pop(context, 'Cancel'),
+                      child: const Text('Close', style: TextStyle(fontWeight: FontWeight.w800))
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: ThemeColor.primary,
+                        fixedSize: Size(130, 30),
+                        foregroundColor: ThemeColor.primaryText,
+                        shadowColor: Colors.black
+                      ),
+                      onPressed:() async {
+                        if (_remarksController.text.trim() != "") {
+                          setState(() {
+                            tempFindings.add(new BusinessFindingsModel(
+                              id: "",
+                              remarks: _remarksController.text,
+                            ));
+                            _remarksController.text = "";
+                          });
+                        }
+
+                        businessApp.business_findings = tempFindings;
+                        EasyLoading.show();
+                        await updateBusinessApplication(businessApp).then((value) {
+                          EasyLoading.dismiss();
+                          popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
+                            Navigator.pop(context);
+                          });
+                        });
+                        
+                      },
+                      child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w800))
+                    )
+                  ],
+                ),
+              )
+            ],
+          );
+        }));
+      }
+    );
+  }
+
+  Future<String> popupNoticeToComply(BuildContext context, BusinessApplication businessApp) {
+    final _remarksController = TextEditingController();
+
+    List<BusinessNoticeToComplyModel> tempNoticeToComply = [];
+    (businessApp.business_notice_to_comply ?? []).forEach((f) {
+      tempNoticeToComply.add(f);
+    });
+
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(builder: ((context, setState) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.zero,
+            actionsPadding: EdgeInsets.all(0),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(16))
+            ),
+            title: Container(
+              height: 30,
+              padding: EdgeInsets.only(left: 20),
+              decoration: BoxDecoration(
+                color: ThemeColor.warning,
+                borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(16), 
+                    bottom: Radius.circular(0)
+                  )
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Notice To Comply', style: TextStyle(fontWeight: FontWeight.w800, color: ThemeColor.primaryText, fontSize: 14)),
+                ],
+              ),
+            ),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width - 100,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "BIN: ${businessApp.transaction_no}", 
+                        style: TextStyle(
+                          fontSize: 12, 
+                          fontWeight: FontWeight.w800
+                        ),
+                      ),
+                      Text(
+                        businessApp.business_name, 
+                        style: TextStyle(
+                          fontSize: 12, 
+                          fontWeight: FontWeight.w800
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: ThemeColor.primaryBg,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      border: Border.all(
+                        width: .5,
+                        color: ThemeColor.disabled,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(0, 1),
+                          blurRadius: 4,
+                          color: ThemeColor.secondary.withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          width: MediaQuery.of(context).size.width - 150,
+                          child: TextField(
+                            controller: _remarksController,
+                            style: TextStyle(fontSize: 11),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            if (_remarksController.text == "") return;
+                            setState(() {
+                              tempNoticeToComply.add(new BusinessNoticeToComplyModel(
+                                id: "",
+                                remarks: _remarksController.text,
+                              ));
+                              _remarksController.text = "";
+                            });
+                          },
+                          child: Container(
+                            width: 30,
+                            height: 80,
+                            decoration: new BoxDecoration(
+                              color: ThemeColor.primary,
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(6),
+                                bottomRight: Radius.circular(6),
+                              )
+                            ),
+                            child: Center(
+                              child: Icon(
+                                MaterialIcons.add,
+                                color: ThemeColor.primaryText,
+                                size: 25,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height/4,
+                    child: SingleChildScrollView(
+                      reverse: true,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[...(tempNoticeToComply ?? []).map((ba) =>
+                          Column(
+                            children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: ThemeColor.primaryBg,
+                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  border: Border.all(
+                                    width: .5,
+                                    color: ThemeColor.disabled,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      offset: Offset(0, 1),
+                                      blurRadius: 4,
+                                      color: ThemeColor.secondary.withOpacity(0.3),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(8),
+                                      width: MediaQuery.of(context).size.width - 150,
+                                      child: Text(
+                                        ba.remarks,
+                                        style: TextStyle(
+                                          fontSize: 11, 
+                                        ),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          tempNoticeToComply.remove(ba);
+                                        });
+                                      },
+                                      child: Container(
+                                        width: 30,
+                                        height: 80,
+                                        decoration: new BoxDecoration(
+                                          color: ThemeColor.warning,
+                                          shape: BoxShape.rectangle,
+                                          borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(6),
+                                            bottomRight: Radius.circular(6),
+                                          )
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            MaterialIcons.delete,
+                                            color: ThemeColor.primaryText,
+                                            size: 25,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                            ],
+                          )
+                        ).toList()],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: ThemeColor.primaryBg,
+                        fixedSize: Size(130, 30),
+                        foregroundColor: Colors.black,
+                        shadowColor: Colors.black
+                      ),
+                      onPressed: () => Navigator.pop(context, 'Cancel'),
+                      child: const Text('Close', style: TextStyle(fontWeight: FontWeight.w800))
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: ThemeColor.primary,
+                        fixedSize: Size(130, 30),
+                        foregroundColor: ThemeColor.primaryText,
+                        shadowColor: Colors.black
+                      ),
+                      onPressed:() async {
+                        if (_remarksController.text.trim() != "") {
+                          setState(() {
+                            tempNoticeToComply.add(new BusinessNoticeToComplyModel(
+                              id: "",
+                              remarks: _remarksController.text,
+                            ));
+                            _remarksController.text = "";
+                          });
+                        }
+
+                        businessApp.business_notice_to_comply = tempNoticeToComply;
+                        EasyLoading.show();
+                        await updateBusinessApplication(businessApp).then((value) {
+                          EasyLoading.dismiss();
+                          popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
+                            Navigator.pop(context);
+                          });
+                        });
+                        
+                      },
+                      child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w800))
+                    )
+                  ],
+                ),
+              )
+            ],
+          );
+        }));
+      }
+    );
+  }
+
+  Future<String> popupRemarks(BuildContext context, BusinessApplication businessApp) {
+    final _remarksController = TextEditingController();
+
+    _remarksController.text = businessApp.business_remarks?.remarks ?? "";
+
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(builder: ((context, setState) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.zero,
+            actionsPadding: EdgeInsets.all(0),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(16))
+            ),
+            title: Container(
+              height: 30,
+              padding: EdgeInsets.only(left: 20),
+              decoration: BoxDecoration(
+                color: ThemeColor.warning,
+                borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(16), 
+                    bottom: Radius.circular(0)
+                  )
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Remarks', style: TextStyle(fontWeight: FontWeight.w800, color: ThemeColor.primaryText, fontSize: 14)),
+                ],
+              ),
+            ),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width - 100,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "BIN: ${businessApp.transaction_no}", 
+                        style: TextStyle(
+                          fontSize: 12, 
+                          fontWeight: FontWeight.w800
+                        ),
+                      ),
+                      Text(
+                        businessApp.business_name, 
+                        style: TextStyle(
+                          fontSize: 12, 
+                          fontWeight: FontWeight.w800
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: ThemeColor.primaryBg,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      border: Border.all(
+                        width: .5,
+                        color: ThemeColor.disabled,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(0, 1),
+                          blurRadius: 4,
+                          color: ThemeColor.secondary.withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      width: MediaQuery.of(context).size.width,
+                      child: TextField(
+                        controller: _remarksController,
+                        style: TextStyle(fontSize: 11),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: ThemeColor.primaryBg,
+                        fixedSize: Size(130, 30),
+                        foregroundColor: Colors.black,
+                        shadowColor: Colors.black
+                      ),
+                      onPressed: () => Navigator.pop(context, 'Cancel'),
+                      child: const Text('Close', style: TextStyle(fontWeight: FontWeight.w800))
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: ThemeColor.primary,
+                        fixedSize: Size(130, 30),
+                        foregroundColor: ThemeColor.primaryText,
+                        shadowColor: Colors.black
+                      ),
+                      onPressed:() async {
+                        businessApp.business_remarks = new BusinessRemarksModel(
+                          id: "",
+                          remarks: _remarksController.text,
+                        );
+                        EasyLoading.show();
+                        await updateBusinessApplication(businessApp).then((value) {
+                          EasyLoading.dismiss();
+                          popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
+                            Navigator.pop(context);
+                          });
+                        });
+                        
+                      },
+                      child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w800))
+                    )
+                  ],
+                ),
+              )
+            ],
+          );
+        }));
+      }
+    );
+  }
+
   viewApplication(BusinessApplication businessApp) async {
     return await LocalDB().localBusinessApplication(baId: businessApp.id).then((data) async {
       if (data.isNotEmpty) {
@@ -501,4 +1475,19 @@ class TransactionsViewState extends State<TransactionsView> {
     });
   }
 
+  addImage(BusinessApplication businessApp) {
+
+  }
+  
+  addFindings(BusinessApplication businessApp) {
+    popupFindings(context, businessApp);
+  }
+  
+  addNoticeToComply(BusinessApplication businessApp) {
+    popupNoticeToComply(context, businessApp);
+  }
+  
+  addRemarks(BusinessApplication businessApp) {
+    popupRemarks(context, businessApp);
+  }
 }

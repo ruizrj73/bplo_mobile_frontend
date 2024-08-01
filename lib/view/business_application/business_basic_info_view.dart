@@ -16,6 +16,11 @@ import 'package:lgu_bplo/utils/theme_color.dart';
 
 final businessName = TextEditingController();
 final businessTinNo = TextEditingController();
+final businessStartDate = TextEditingController();
+final businessPermitNo = TextEditingController();
+final businessDateIssued = TextEditingController();
+final birPermitNo = TextEditingController();
+final birDateIssued = TextEditingController();
 String selectedAppTypeOption = "New";
 String paymentMode = "";
 String taxYear = DateTime.now().year.toString();
@@ -53,6 +58,9 @@ class BusinessBasicInfoViewState extends State<BusinessBasicInfoView> {
         case "Renew":
           selectedAppTypeOption = "Renew";
           break;
+        case "None":
+          selectedAppTypeOption = "None";
+          break;
         default:
           selectedAppTypeOption = "New";
           break;
@@ -77,6 +85,11 @@ class BusinessBasicInfoViewState extends State<BusinessBasicInfoView> {
       orgType = _businessApplication.organization_type ?? mainController.listBusinessType[0].organization_type;
       businessName.text = _businessApplication.business_name ?? "";
       businessTinNo.text = _businessApplication.tin_no ?? "";
+      businessStartDate.text = _businessApplication.business_started_date ?? "";
+      businessPermitNo.text = _businessApplication.business_permit_no ?? "";
+      businessDateIssued.text = _businessApplication.business_permit_issued_date ?? "";
+      birPermitNo.text = _businessApplication.bir_permit_no ?? "";
+      birDateIssued.text = _businessApplication.bir_issued_date ?? "";
     });
   }
 
@@ -158,6 +171,28 @@ class BusinessBasicInfoViewState extends State<BusinessBasicInfoView> {
                 },
                 child: Text("Renew", style: TextStyle(fontSize: 12)),
               ),
+              SizedBox(width: 16),
+              SizedBox(
+                height: 30,
+                width: 30,
+                child: Radio(
+                  value: "None",
+                  groupValue: selectedAppTypeOption,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedAppTypeOption = value;
+                    });
+                  },
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    selectedAppTypeOption = "None";
+                  });
+                },
+                child: Text("None", style: TextStyle(fontSize: 12)),
+              ),
             ],
           ),
           SizedBox(height: 8),
@@ -193,9 +228,19 @@ class BusinessBasicInfoViewState extends State<BusinessBasicInfoView> {
           SizedBox(height: 8),
           InputControls.textFieldInput(context, businessName, title: "Business Name"),
           SizedBox(height: 8),
+          InputControls.textFieldInput(context, businessStartDate, title: "Date Business Started", isDate: true),
+          SizedBox(height: 8),
+          InputControls.textFieldInput(context, businessPermitNo, title: "Business Permit No."),
+          SizedBox(height: 8),
+          InputControls.textFieldInput(context, businessDateIssued, title: "Date Issued", isDate: true),
+          SizedBox(height: 8),
+          InputControls.textFieldInput(context, birPermitNo, title: "BIR Permit No."),
+          SizedBox(height: 8),
+          InputControls.textFieldInput(context, birDateIssued, title: "Date Issued", isDate: true),
+          SizedBox(height: 8),
           InputControls.textFieldInput(context, businessTinNo, title: "TIN Number"),
           SizedBox(height: 8),
-          Text("Application Requirements :", style: TextStyle(fontSize: 12)),
+          Text("Assessment File Attachments :", style: TextStyle(fontSize: 12)),
           SizedBox(height: 8),
           SizedBox(
             height: 23,
@@ -379,6 +424,11 @@ class BusinessBasicInfoViewState extends State<BusinessBasicInfoView> {
     _businessApplication.organization_type = orgType;
     _businessApplication.tin_no = businessTinNo.text;
     _businessApplication.business_name = businessName.text;
+    _businessApplication.business_started_date = businessStartDate.text;
+    _businessApplication.business_permit_no = businessPermitNo.text;
+    _businessApplication.business_permit_issued_date = businessDateIssued.text;
+    _businessApplication.bir_permit_no = birPermitNo.text;
+    _businessApplication.bir_issued_date = birDateIssued.text;
   }
 
   attachFile(String fileType) {

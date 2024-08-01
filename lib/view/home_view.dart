@@ -29,7 +29,9 @@ class HomeView extends StatefulWidget {
 class HomeViewState extends State<HomeView> {
   final NetworkConnectionController networkConnectionController = Get.find();
   bool isNewSelected = false;
-  bool isRenewSelected = false;
+  bool isOldSelected = false;
+  bool isNoSelected = false;
+  bool isListSelected = false;
   @override
   void initState() {
     super.initState();
@@ -42,7 +44,9 @@ class HomeViewState extends State<HomeView> {
       if (val == 0) {
         setState(() {
           isNewSelected = false;
-          isRenewSelected = false;
+          isOldSelected = false;
+          isNoSelected = false;
+          isListSelected = false;
         });
       }
     });
@@ -137,10 +141,10 @@ class HomeViewState extends State<HomeView> {
           width: MediaQuery.of(context).size.width,
           height: 150,
           decoration: BoxDecoration(
-            color: ThemeColor.primary,
+            color: ThemeColor.primaryBg,
             boxShadow: [
               BoxShadow(
-                color: ThemeColor.disabled,
+                color: ThemeColor.primary,
                 spreadRadius: 1,
                 blurRadius: 1,
                 offset: Offset(0, 1), // changes position of shadow
@@ -169,14 +173,14 @@ class HomeViewState extends State<HomeView> {
                     alignment: Alignment.center,
                     child: SizedBox(
                       width: 260,
-                      height: 30,
+                      height: 35,
                       child: FittedBox(
                         alignment: Alignment.centerLeft,
                         fit: BoxFit.scaleDown,
                         child: Text(
                           Env.lguName,
                           style: TextStyle(
-                            color: ThemeColor.primaryText,
+                            color: ThemeColor.secondary,
                             fontSize: 28,
                             fontWeight: FontWeight.w800),
                         ),
@@ -188,16 +192,13 @@ class HomeViewState extends State<HomeView> {
                     child: SizedBox(
                       width: 260,
                       height: 30,
-                      child: FittedBox(
-                        alignment: Alignment.centerLeft,
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          Env.lguAddress,
-                          style: TextStyle(
-                            color: ThemeColor.primaryText,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500),
-                        ),
+                      child: Text(
+                        Env.lguAddress,
+                        style: TextStyle(
+                          color: ThemeColor.secondary,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500),
                       ),
                     ),
                   ),
@@ -225,7 +226,7 @@ class HomeViewState extends State<HomeView> {
                     child: Column(
                       children: [
                         Text(
-                          "Integrated Business Permit Licensing",
+                          "Business Survey and Assessment",
                           style: TextStyle(
                             color: ThemeColor.primary,
                             fontSize: 18,
@@ -233,7 +234,7 @@ class HomeViewState extends State<HomeView> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          "Management System",
+                          "Sheet",
                           style: TextStyle(
                             color: ThemeColor.primary,
                             fontSize: 18,
@@ -252,20 +253,9 @@ class HomeViewState extends State<HomeView> {
                     onTap: () {
                       setState(() {
                         isNewSelected = !isNewSelected;
-                        isRenewSelected = false;
-                        if (isNewSelected) {
-                          List<BusinessApplication> _businessApplication = userController.listBusinessApplication.value.application.where((app) => app.application_status == "Pending Application").toList();
-                          if (_businessApplication.isNotEmpty) {
-                            popupDialogYesNo(context, NotifHeader.confirm, "Pending Business Permit found. Do you want to continue?").then((res) {
-                              if (res == "No") {
-                                // userController.applicationType.value = _businessApplication.application_type;
-                                // userController.activeBusinessApplication.value = _businessApplication;
-                                mainController.bottomNavIndex.value = 2;
-                                Get.toNamed(PageRoutes.AccountTransaction, arguments: {"pendingId": _businessApplication.first.id});
-                              }
-                            });
-                          }
-                        }
+                        isOldSelected = false;
+                        isNoSelected = false;
+                        isListSelected = false;
                       });
                     },
                     child: Container(
@@ -275,7 +265,7 @@ class HomeViewState extends State<HomeView> {
                         color: ThemeColor.primaryBg,
                         border: Border.all(
                           width: 2,
-                          color: isNewSelected ? ThemeColor.primaryGlow : isRenewSelected ? ThemeColor.primaryLighter : ThemeColor.primary,
+                          color: isNewSelected ? ThemeColor.primaryGlow : (isOldSelected || isNoSelected || isListSelected) ? ThemeColor.primaryLighter : ThemeColor.primary,
                         ),
                         borderRadius: BorderRadius.all(
                             Radius.circular(5)
@@ -296,13 +286,14 @@ class HomeViewState extends State<HomeView> {
                           Icon(
                             MaterialIcons.add_circle,
                             size: 70,
-                            color: ThemeColor.primary,
+                            color: (isNoSelected || isOldSelected || isListSelected) ? ThemeColor.primaryLighter : ThemeColor.primary,
                           ),
                           Text(
                             "New Business",
                             style: TextStyle(
                               fontSize: 12, 
-                              fontWeight: FontWeight.w800
+                              fontWeight: FontWeight.w800,
+                              color: (isNoSelected || isOldSelected || isListSelected) ? ThemeColor.disabledText : ThemeColor.secondary,
                             )
                           ),
                         ],
@@ -312,8 +303,10 @@ class HomeViewState extends State<HomeView> {
                   InkWell(
                     onTap: () {
                       setState(() {
-                        isRenewSelected = !isRenewSelected;
+                        isOldSelected = !isOldSelected;
                         isNewSelected = false;
+                        isNoSelected = false;
+                        isListSelected = false;
                       });
                     },
                     child: Container(
@@ -323,14 +316,14 @@ class HomeViewState extends State<HomeView> {
                         color: ThemeColor.primaryBg,
                         border: Border.all(
                           width: 2,
-                          color: isRenewSelected ? ThemeColor.primaryGlow : isNewSelected ? ThemeColor.primaryLighter : ThemeColor.primary,
+                          color: isOldSelected ? ThemeColor.primaryGlow : (isNoSelected || isNewSelected || isListSelected) ? ThemeColor.primaryLighter : ThemeColor.primary,
                         ),
                         borderRadius: BorderRadius.all(
                             Radius.circular(5)
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: isRenewSelected ? ThemeColor.primary : ThemeColor.primaryBg,
+                            color: isOldSelected ? ThemeColor.primary : ThemeColor.primaryBg,
                             spreadRadius: 1,
                             blurRadius: 4,
                             offset: Offset(0, 0), // changes position of shadow
@@ -343,13 +336,14 @@ class HomeViewState extends State<HomeView> {
                           Icon(
                             MaterialIcons.check_circle,
                             size: 70,
-                            color: ThemeColor.primary,
+                            color: (isNoSelected || isNewSelected || isListSelected) ? ThemeColor.primaryLighter : ThemeColor.primary,
                           ),
                           Text(
-                            "Renew Business",
+                            "Old Business",
                             style: TextStyle(
                               fontSize: 12, 
-                              fontWeight: FontWeight.w800
+                              fontWeight: FontWeight.w800,
+                              color: (isNoSelected || isNewSelected || isListSelected) ? ThemeColor.disabledText : ThemeColor.secondary,
                             )
                           ),
                         ],
@@ -358,14 +352,121 @@ class HomeViewState extends State<HomeView> {
                   ),
                 ],
               ),
-              SizedBox(height: 110),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        isNoSelected = !isNoSelected;
+                        isNewSelected = false;
+                        isOldSelected = false;
+                        isListSelected = false;
+                      });
+                    },
+                    child: Container(
+                      width: 120,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: ThemeColor.primaryBg,
+                        border: Border.all(
+                          width: 2,
+                          color: isNoSelected ? ThemeColor.primaryGlow : (isOldSelected || isNewSelected || isListSelected) ? ThemeColor.primaryLighter : ThemeColor.primary,
+                        ),
+                        borderRadius: BorderRadius.all(
+                            Radius.circular(5)
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isNoSelected ? ThemeColor.primary : ThemeColor.primaryBg,
+                            spreadRadius: 1,
+                            blurRadius: 4,
+                            offset: Offset(0, 0), // changes position of shadow
+                          ),
+                        ],
+
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(
+                            MaterialIcons.cancel,
+                            size: 70,
+                            color: (isOldSelected || isNewSelected || isListSelected) ? ThemeColor.primaryLighter : ThemeColor.primary,
+                          ),
+                          Text(
+                            "No Business Permit",
+                            style: TextStyle(
+                              fontSize: 12, 
+                              fontWeight: FontWeight.w800,
+                              color: (isOldSelected || isNewSelected || isListSelected) ? ThemeColor.disabledText : ThemeColor.secondary,
+                            )
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        isListSelected = !isListSelected;
+                        isNoSelected = false;
+                        isNewSelected = false;
+                        isOldSelected = false;
+                      });
+                    },
+                    child: Container(
+                      width: 120,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: ThemeColor.primaryBg,
+                        border: Border.all(
+                          width: 2,
+                          color: isListSelected ? ThemeColor.primaryGlow : (isOldSelected || isNewSelected || isNoSelected) ? ThemeColor.primaryLighter : ThemeColor.primary,
+                        ),
+                        borderRadius: BorderRadius.all(
+                            Radius.circular(5)
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isListSelected ? ThemeColor.primary : ThemeColor.primaryBg,
+                            spreadRadius: 1,
+                            blurRadius: 4,
+                            offset: Offset(0, 0), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(
+                            MaterialIcons.view_list,
+                            size: 70,
+                            color: (isOldSelected || isNewSelected || isNoSelected) ? ThemeColor.primaryLighter : ThemeColor.primary,
+                          ),
+                          Text(
+                            "List of Business",
+                            style: TextStyle(
+                              fontSize: 12, 
+                              fontWeight: FontWeight.w800,
+                              color: (isOldSelected || isNewSelected || isNoSelected) ? ThemeColor.disabledText : ThemeColor.secondary,
+                            )
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 50),
               Center(
                 child: TextButton(
                   style: TextButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    backgroundColor: isNewSelected || isRenewSelected ? ThemeColor.primary : ThemeColor.disabled,
+                    backgroundColor: (isNewSelected || isOldSelected || isNoSelected || isListSelected) ? ThemeColor.primary : ThemeColor.disabled,
                     minimumSize: Size(MediaQuery.of(context).size.width / 1.5, 50),
                     shadowColor: ThemeColor.secondary,
                     elevation: 3,
@@ -390,15 +491,18 @@ class HomeViewState extends State<HomeView> {
   }
 
   businessApplicationProcess() {
-    if (isNewSelected || isRenewSelected) {
-      userController.activeBusinessApplication.value = BusinessApplication();
-      userController.applicationType.value = isNewSelected ? "New" : isRenewSelected ? "Renew" : "New";
+    if (isNewSelected || isOldSelected || isNoSelected) {
+      userController.applicationType.value = isNewSelected ? "New" : isOldSelected ? "Renew" : isNoSelected ? "None" : "New";
+      userController.activeBusinessApplication.value = BusinessApplication(application_type: userController.applicationType.value);
       Get.toNamed(PageRoutes.BusinessPermitApplication).then((value) {
         setState(() {
           isNewSelected = false;
-          isRenewSelected = false;
+          isOldSelected = false;
+          isNoSelected = false;
         });
       });
+    } else if (isListSelected) {
+      navigationItemSelection(2, context);
     }
   }
 }
