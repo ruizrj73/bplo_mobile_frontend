@@ -1,4 +1,86 @@
 class DBScripts {
+
+  String createUserTable() {
+    return """CREATE TABLE IF NOT EXISTS mobileuser(
+      id TEXT PRIMARY KEY,
+      username TEXT,
+      password TEXT,
+      empId TEXT,
+      firstname TEXT,
+      middlename TEXT,
+      lastname TEXT,
+      suffix TEXT,
+      email TEXT,
+      contactnumber TEXT,
+      clusterGroup TEXT,
+      userType TEXT,
+      typeId TEXT,
+      typeName TEXT,
+      allowOffline INTEGER,
+      allowAttach INTEGER
+    )""";
+  }
+
+  String createLineBusinessTable() {
+    return """CREATE TABLE IF NOT EXISTS linebusiness(
+      id TEXT PRIMARY KEY,
+      code TEXT,
+      description TEXT,
+      status TEXT,
+      sequence INTEGER
+    )""";
+  }
+
+  String createModeOfPaymentTable() {
+    return """CREATE TABLE IF NOT EXISTS modeofpayment(
+      id TEXT PRIMARY KEY,
+      payment_type TEXT,
+      code TEXT
+    )""";
+  }
+
+  String createStatusApplicationTable() {
+    return """CREATE TABLE IF NOT EXISTS statusofapplication(
+      id TEXT PRIMARY KEY,
+      code TEXT,
+      application_type TEXT,
+      `group` TEXT
+    )""";
+  }
+
+  String createTypeApplicationTable() {
+    return """CREATE TABLE IF NOT EXISTS typeofapplication(
+      id TEXT PRIMARY KEY,
+      code TEXT,
+      permit_type TEXT,
+      `group` TEXT
+    )""";
+  }
+
+  String createTypeBusinessTable() {
+    return """CREATE TABLE IF NOT EXISTS typeofbusiness(
+      id TEXT PRIMARY KEY,
+      code TEXT,
+      organization_type TEXT
+    )""";
+  }
+
+  String createMeasurePaxTable() {
+    return """CREATE TABLE IF NOT EXISTS measurepax(
+      id TEXT PRIMARY KEY,
+      code TEXT,
+      description TEXT
+    )""";
+  }
+
+  String createAppStatusTable() {
+    return """CREATE TABLE IF NOT EXISTS appstatus(
+      id TEXT PRIMARY KEY,
+      connectivityStatus TEXT,
+      attachmentStatus TEXT
+    )""";
+  }
+
   String createBusinessApplicationTable() {
     return """CREATE TABLE IF NOT EXISTS businessapplication(
       id TEXT PRIMARY KEY,
@@ -23,8 +105,12 @@ class DBScripts {
       ctc_issued_date TEXT,
       plate_no TEXT,
       signage_name TEXT,
+      business_longitude TEXT,
+      business_latitude TEXT,
+      business_actual_address TEXT,
       remarks TEXT,
-      application_status TEXT
+      application_status TEXT,
+      created_by TEXT
     )""";
   }
 

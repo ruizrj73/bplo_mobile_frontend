@@ -1,10 +1,8 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_final_fields
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:lgu_bplo/model/message_model.dart';
 import 'package:lgu_bplo/utils/bottom_navigation_bar.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
@@ -29,30 +27,30 @@ class InboxViewState extends State<InboxView> {
   }
 
   Future<void> loadData() async {
-    EasyLoading.show();
-    setState(() {
-      isLoadingData = true;
-    });
-    Future.delayed(Duration(seconds: 2)).then((value) async {
-      await getInbox().then((res) {
-        List<MessageModel> inboxTempData = [];
-        if (res != null) {
-          res.forEach((p) {
-            inboxTempData.add(MessageModel.fromJson(p));
-          });
-        }
-        userController.listMessages.value.messages = inboxTempData;
-        userController.listMessages.refresh();
+    // EasyLoading.show();
+    // setState(() {
+    //   isLoadingData = true;
+    // });
+    // Future.delayed(Duration(seconds: 2)).then((value) async {
+      // await getInbox().then((res) {
+      //   List<MessageModel> inboxTempData = [];
+      //   if (res != null) {
+      //     res.forEach((p) {
+      //       inboxTempData.add(MessageModel.fromJson(p));
+      //     });
+      //   }
+      //   userController.listMessages.value.messages = inboxTempData;
+      //   userController.listMessages.refresh();
 
-        userController.hasNewMessage.value = (userController.listMessages.value.messages ?? []).where((m) => m.messageState == "Unread").isNotEmpty;
-        userController.hasNewMessage.refresh();
+      //   userController.hasNewMessage.value = (userController.listMessages.value.messages ?? []).where((m) => m.messageState == "Unread").isNotEmpty;
+      //   userController.hasNewMessage.refresh();
 
-        setState(() {
-          isLoadingData = false;
-        });
-        EasyLoading.dismiss();
-      });
-    });
+      //   setState(() {
+      //     isLoadingData = false;
+      //   });
+      //   EasyLoading.dismiss();
+      // });
+    // });
   }
 
   @override

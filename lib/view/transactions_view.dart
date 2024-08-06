@@ -4,12 +4,16 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:lgu_bplo/controller/file_controller.dart';
+import 'package:lgu_bplo/controller/network_connection_controller.dart';
 import 'package:lgu_bplo/model/business_application_model.dart';
 import 'package:lgu_bplo/utils/attach_file_dialog.dart';
+import 'package:lgu_bplo/utils/attachment_type.dart';
 import 'package:lgu_bplo/utils/bottom_navigation_bar.dart';
 import 'package:lgu_bplo/utils/local_db.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
+import 'package:lgu_bplo/utils/pre_backend_call.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 import 'package:shimmer/shimmer.dart';
@@ -24,6 +28,7 @@ class TransactionsView extends StatefulWidget {
 }
 
 class TransactionsViewState extends State<TransactionsView> {
+  final NetworkConnectionController networkConnectionController = Get.find();
   bool isLoadingData = false;
   List<BusinessApplication> businessApplication = [];
   Map<String, bool> viewApplicationShow = {"": false};
@@ -46,21 +51,17 @@ class TransactionsViewState extends State<TransactionsView> {
       }
     });
     Future.delayed(Duration(seconds: 1)).then((value) async {
-      await getListTransactions().then((res) {
-        List<BusinessApplication> businessApplicationTemp = [];
+      await PreBackendCall().pregetListTransaction().then((res) {
         if (res != null) {
-          res.forEach((p) {
-            businessApplicationTemp.add(BusinessApplication.fromJson(p));
-          });
-        }
-        if (mounted) {
-          setState(() {
-            businessApplication = businessApplicationTemp;
-            isLoadingData = false;
-          });
+          if (mounted) {
+            setState(() {
+              businessApplication = res;
+              isLoadingData = false;
+            });
 
-          userController.hasNewTransaction.value = false;
-          userController.hasNewTransaction.refresh();
+            userController.hasNewTransaction.value = false;
+            userController.hasNewTransaction.refresh();
+          }
         }
       });
     });
@@ -91,35 +92,38 @@ class TransactionsViewState extends State<TransactionsView> {
         backgroundColor: ThemeColor.primary,
         elevation: 1,
         leading: Container(),
-        title: Center(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(0, 0, 50, 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 15,
-                  width: 15,
-                  child: Icon(
-                    MaterialIcons.description, 
-                    size: 15,
-                    color: ThemeColor.primaryText,
-                  )
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 15,
+              width: 15,
+              child: Icon(
+                MaterialIcons.description, 
+                size: 15,
+                color: ThemeColor.primaryText,
+              )
+            ),
+            SizedBox(width: 8),
+            Text(
+              "${userController.getConnectivityStatus() == "Offline" ? "Offline " : ""}Transaction",
+              style: TextStyle(
+                  color: ThemeColor.primaryText,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w300
                 ),
-                SizedBox(width: 8),
-                Text(
-                  "Transaction",
-                  style: TextStyle(
-                      color: ThemeColor.primaryText,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w300
-                    ),
-                  textAlign: TextAlign.center
-                ),
-              ],
-            )
-          )
+              textAlign: TextAlign.center
+            ),
+          ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.upload, color: ThemeColor.primaryText),
+            onPressed: () {
+              popupUploadMenu(context);
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: RefreshIndicator(
@@ -239,7 +243,7 @@ class TransactionsViewState extends State<TransactionsView> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "BIN: ${businessApp.transaction_no}", 
+                                        "BIN: ${businessApp.transaction_no ?? ''}", 
                                         style: TextStyle(
                                           fontSize: 14, 
                                           fontWeight: FontWeight.w800
@@ -485,29 +489,382 @@ class TransactionsViewState extends State<TransactionsView> {
       context: context,
       builder: (BuildContext context) => AlertDialog(
         actionsPadding: EdgeInsets.all(0),
-        titlePadding: EdgeInsets.all(16),
+        titlePadding: EdgeInsets.all(0),
         contentPadding: EdgeInsets.all(16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16))
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "BIN: ${businessApp.transaction_no}", 
-              style: TextStyle(
-                fontSize: 12, 
-                fontWeight: FontWeight.w800
+        title: Container(
+          padding: EdgeInsets.all(8),
+          decoration: new BoxDecoration(
+            color: ThemeColor.primary,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 2,
+                color: ThemeColor.disabled,
+                offset: Offset(1,1)
               ),
-            ),
-            Text(
-              businessApp.business_name, 
-              style: TextStyle(
-                fontSize: 12, 
-                fontWeight: FontWeight.w800
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "BIN: ${businessApp.transaction_no}", 
+                style: TextStyle(
+                  fontSize: 10, 
+                  fontWeight: FontWeight.w800
+                ),
               ),
+              SizedBox(height: 4),
+              Text(
+                businessApp.business_name, 
+                style: TextStyle(
+                  fontSize: 14, 
+                  fontWeight: FontWeight.w800
+                ),
+              ),
+            ],
+          ),
+        ),
+        content: SizedBox(
+          width: 160,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      viewApplication(businessApp);
+                    },
+                    child: Container(
+                      width: 115,
+                      height: 80,
+                      decoration: new BoxDecoration(
+                        color: ThemeColor.primaryBg,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 2,
+                            color: ThemeColor.disabled,
+                            offset: Offset(1,1)
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(MaterialIcons.description, size: 50, color: ThemeColor.primary),
+                            SizedBox(width: 8),
+                            Text(
+                              "View Assessment",
+                              style: TextStyle(
+                                color: ThemeColor.disabledText,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      if (userController.getAttachmentStatus() == "Allowed") {
+                        Navigator.pop(context);
+                        addImage(businessApp);
+                      }
+                    },
+                    child: Container(
+                      width: 115,
+                      height: 80,
+                      decoration: new BoxDecoration(
+                        color: ThemeColor.primaryBg,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 2,
+                            color: ThemeColor.disabled,
+                            offset: Offset(1,1)
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(MaterialIcons.image, size: 50, color: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled),
+                            SizedBox(width: 8),
+                            Text(
+                              "Add/View Image",
+                              style: TextStyle(
+                                color: ThemeColor.disabledText,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      addFindings(businessApp);
+                    },
+                    child: Container(
+                      width: 115,
+                      height: 80,
+                      decoration: new BoxDecoration(
+                        color: ThemeColor.primaryBg,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 2,
+                            color: ThemeColor.disabled,
+                            offset: Offset(1,1)
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(MaterialIcons.view_list, size: 50, color: ThemeColor.primary),
+                            SizedBox(width: 8),
+                            Text(
+                              "Add Findings",
+                              style: TextStyle(
+                                color: ThemeColor.disabledText,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      addNoticeToComply(businessApp);
+                    },
+                    child: Container(
+                      width: 115,
+                      height: 80,
+                      decoration: new BoxDecoration(
+                        color: ThemeColor.primaryBg,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 2,
+                            color: ThemeColor.disabled,
+                            offset: Offset(1,1)
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(MaterialIcons.error_outline, size: 50, color: ThemeColor.primary),
+                            SizedBox(width: 8),
+                            Text(
+                              "Notice to Comply",
+                              style: TextStyle(
+                                color: ThemeColor.disabledText,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      addRemarks(businessApp);
+                    },
+                    child: Container(
+                      width: 115,
+                      height: 80,
+                      decoration: new BoxDecoration(
+                        color: ThemeColor.primaryBg,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 2,
+                            color: ThemeColor.disabled,
+                            offset: Offset(1,1)
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(MaterialIcons.assignment, size: 50, color: ThemeColor.primary),
+                            SizedBox(width: 8),
+                            Text(
+                              "Add Remarks",
+                              style: TextStyle(
+                                color: ThemeColor.disabledText,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      addCoordinates(businessApp);
+                    },
+                    child: Container(
+                      width: 115,
+                      height: 80,
+                      decoration: new BoxDecoration(
+                        color: ThemeColor.primaryBg,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 2,
+                            color: ThemeColor.disabled,
+                            offset: Offset(1,1)
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(MaterialIcons.pin_drop, size: 50, color: ThemeColor.primary),
+                            SizedBox(width: 8),
+                            Text(
+                              "Add Coordinates",
+                              style: TextStyle(
+                                color: ThemeColor.disabledText,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 30,
+                  decoration: new BoxDecoration(
+                    color: ThemeColor.warning,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 2,
+                        color: ThemeColor.disabled,
+                        offset: Offset(1,1)
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(MaterialIcons.cancel, size: 20, color: ThemeColor.primaryText),
+                        SizedBox(width: 8),
+                        Text(
+                          "Close",
+                          style: TextStyle(
+                            color: ThemeColor.primaryText,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[],
+      ),
+    );
+  }
+  
+  Future<String> popupUploadMenu(BuildContext context) {
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        actionsPadding: EdgeInsets.all(0),
+        titlePadding: EdgeInsets.all(0),
+        contentPadding: EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16))
+        ),
+        title: Container(
+          padding: EdgeInsets.all(12),
+          decoration: new BoxDecoration(
+            color: ThemeColor.primary,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 2,
+                color: ThemeColor.disabled,
+                offset: Offset(1,1)
+              ),
+            ],
+          ),
+          child: Text(
+            "Offline Transaction", 
+            style: TextStyle(
+              fontSize: 12, 
+              fontWeight: FontWeight.w800
             ),
-          ],
+          ),
         ),
         content: SizedBox(
           width: 160,
@@ -516,14 +873,38 @@ class TransactionsViewState extends State<TransactionsView> {
             children: [
               InkWell(
                 onTap: () {
-                  viewApplication(businessApp);
-                  Navigator.pop(context);
+                  if (businessApplication.isEmpty) {
+                    popupDialog(context, NotifHeader.information, "No Offline Records found.");
+                  } else {
+                    popupDialogYesNo(context, "Upload Offline Records", "Are you sure do you want to upload offline records?", additionalHeader: "Warning!", additionalMessage: "Uploading offline records will remove the data from your device and will just be available when you're online.").then((value) {
+                      if (value == "Yes") {
+                        networkConnectionController.checkConnectionStatus().then((connResult) async {
+                          if (connResult) {
+                            EasyLoading.show();
+                            await Future.forEach(businessApplication, (businessApp) async {
+                              await saveBusinessApplication(businessApp);
+                            }).then((value) {
+                              setState(() {
+                                businessApplication = [];
+                              });
+                              LocalDB().deleteAllBusinessApplication();
+                              EasyLoading.dismiss();
+                              popupDialog(context, NotifHeader.success, "Offline Records successfully uploaded.");
+                            });
+                          } else {
+                            popupDialog(context, NotifHeader.error, "Please check your internet connection.");
+                            return;
+                          }
+                        });
+                      }
+                    });
+                  }
                 },
                 child: Container(
                   width: 150,
-                  height: 30,
+                  height: 80,
                   decoration: new BoxDecoration(
-                    color: ThemeColor.primaryBg,
+                    color: businessApplication.isNotEmpty ? ThemeColor.primaryBg : ThemeColor.disabled,
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.all(Radius.circular(6)),
                     boxShadow: [
@@ -535,13 +916,13 @@ class TransactionsViewState extends State<TransactionsView> {
                     ],
                   ),
                   child: Center(
-                    child: Row(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(MaterialIcons.description, size: 20),
+                        Icon(MaterialIcons.cloud_upload, size: 50, color: businessApplication.isNotEmpty ? ThemeColor.primary : ThemeColor.disabledText),
                         SizedBox(width: 8),
                         Text(
-                          "View Assessment",
+                          "Upload Offline Records",
                           style: TextStyle(
                             color: ThemeColor.disabledText,
                             fontSize: 10,
@@ -553,173 +934,13 @@ class TransactionsViewState extends State<TransactionsView> {
                   ),
                 ),
               ),
-              SizedBox(height: 4),
-              InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                  addImage(businessApp);
-                },
-                child: Container(
-                  width: 150,
-                  height: 30,
-                  decoration: new BoxDecoration(
-                    color: ThemeColor.primaryBg,
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.all(Radius.circular(6)),
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 2,
-                        color: ThemeColor.disabled,
-                        offset: Offset(1,1)
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(MaterialIcons.image, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          "Add/View Image",
-                          style: TextStyle(
-                            color: ThemeColor.disabledText,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 4),
-              InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                  addFindings(businessApp);
-                },
-                child: Container(
-                  width: 150,
-                  height: 30,
-                  decoration: new BoxDecoration(
-                    color: ThemeColor.primaryBg,
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.all(Radius.circular(6)),
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 2,
-                        color: ThemeColor.disabled,
-                        offset: Offset(1,1)
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(MaterialIcons.view_list, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          "Add Findings",
-                          style: TextStyle(
-                            color: ThemeColor.disabledText,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 4),
-              InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                  addNoticeToComply(businessApp);
-                },
-                child: Container(
-                  width: 150,
-                  height: 30,
-                  decoration: new BoxDecoration(
-                    color: ThemeColor.primaryBg,
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.all(Radius.circular(6)),
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 2,
-                        color: ThemeColor.disabled,
-                        offset: Offset(1,1)
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(MaterialIcons.error_outline, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          "Notice to Comply",
-                          style: TextStyle(
-                            color: ThemeColor.disabledText,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 4),
-              InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                  addRemarks(businessApp);
-                },
-                child: Container(
-                  width: 150,
-                  height: 30,
-                  decoration: new BoxDecoration(
-                    color: ThemeColor.primaryBg,
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.all(Radius.circular(6)),
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 2,
-                        color: ThemeColor.disabled,
-                        offset: Offset(1,1)
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(MaterialIcons.assignment, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          "Add Remarks",
-                          style: TextStyle(
-                            color: ThemeColor.disabledText,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 28),
+              SizedBox(height: 16),
               InkWell(
                 onTap: () {
                   Navigator.pop(context);
                 },
                 child: Container(
-                  width: 150,
+                  width: MediaQuery.of(context).size.width,
                   height: 30,
                   decoration: new BoxDecoration(
                     color: ThemeColor.warning,
@@ -1007,14 +1228,26 @@ class TransactionsViewState extends State<TransactionsView> {
                         }
 
                         businessApp.business_findings = tempFindings;
-                        EasyLoading.show();
-                        await updateBusinessApplication(businessApp).then((value) {
-                          EasyLoading.dismiss();
-                          popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
-                            Navigator.pop(context);
+
+                        if (userController.getConnectivityStatus() == "Online") {
+                          EasyLoading.show();
+                          
+                          await updateBusinessApplication(businessApp).then((value) {
+                            EasyLoading.dismiss();
+                            popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
+                              Navigator.pop(context);
+                            });
                           });
-                        });
-                        
+                        } else if (userController.getConnectivityStatus() == "Offline") {
+                          EasyLoading.show();
+
+                          await LocalDB().localInsertBusinessApplication(businessApp).then((value) {
+                            EasyLoading.dismiss();
+                            popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
+                              Navigator.pop(context);
+                            });
+                          });
+                        }
                       },
                       child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w800))
                     )
@@ -1275,14 +1508,26 @@ class TransactionsViewState extends State<TransactionsView> {
                         }
 
                         businessApp.business_notice_to_comply = tempNoticeToComply;
-                        EasyLoading.show();
-                        await updateBusinessApplication(businessApp).then((value) {
-                          EasyLoading.dismiss();
-                          popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
-                            Navigator.pop(context);
+
+                        if (userController.getConnectivityStatus() == "Online") {
+                          EasyLoading.show();
+                          
+                          await updateBusinessApplication(businessApp).then((value) {
+                            EasyLoading.dismiss();
+                            popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
+                              Navigator.pop(context);
+                            });
                           });
-                        });
-                        
+                        } else if (userController.getConnectivityStatus() == "Offline") {
+                          EasyLoading.show();
+
+                          await LocalDB().localInsertBusinessApplication(businessApp).then((value) {
+                            EasyLoading.dismiss();
+                            popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
+                              Navigator.pop(context);
+                            });
+                          });
+                        }
                       },
                       child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w800))
                     )
@@ -1423,14 +1668,26 @@ class TransactionsViewState extends State<TransactionsView> {
                           id: "",
                           remarks: _remarksController.text,
                         );
-                        EasyLoading.show();
-                        await updateBusinessApplication(businessApp).then((value) {
-                          EasyLoading.dismiss();
-                          popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
-                            Navigator.pop(context);
+
+                        if (userController.getConnectivityStatus() == "Online") {
+                          EasyLoading.show();
+                          
+                          await updateBusinessApplication(businessApp).then((value) {
+                            EasyLoading.dismiss();
+                            popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
+                              Navigator.pop(context);
+                            });
                           });
-                        });
-                        
+                        } else if (userController.getConnectivityStatus() == "Offline") {
+                          EasyLoading.show();
+
+                          await LocalDB().localInsertBusinessApplication(businessApp).then((value) {
+                            EasyLoading.dismiss();
+                            popupDialog(context, NotifHeader.success, "Successfully Saved!").then((value) {
+                              Navigator.pop(context);
+                            });
+                          });
+                        }
                       },
                       child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w800))
                     )
@@ -1445,38 +1702,79 @@ class TransactionsViewState extends State<TransactionsView> {
   }
 
   viewApplication(BusinessApplication businessApp) async {
-    return await LocalDB().localBusinessApplication(baId: businessApp.id).then((data) async {
-      if (data.isNotEmpty) {
-        popupDialogYesNo(context, "Draft Application", "You have a draft application saved. Do you want to load it?", additionalHeader: "Warning!", additionalMessage: "Pressing 'No' will remove draft application.").then((value) {
-          if (value == "Yes") {
-            userController.applicationType.value = data[0].application_type;
-            userController.activeBusinessApplication.value = data[0];
-            userController.selectedBusinessApplication.value = data[0];
-            Get.toNamed(PageRoutes.BusinessPermitApplication);
-          } else if (value == "No") {
-            LocalDB().deleteBusinessApplication(data[0]);
-            userController.applicationType.value = businessApp.application_type;
-            userController.activeBusinessApplication.value = BusinessApplication.fromJson(businessApp.toJson());
-            userController.selectedBusinessApplication.value = businessApp;
-            fileController.listFileAttachment.value.fileAttachments.removeWhere((f) => f.applicationId == businessApp.id);
-            Get.toNamed(PageRoutes.BusinessPermitApplication).then((value) {
-              loadData();
-            });
-          }
-        });
-      } else {
-        userController.applicationType.value = businessApp.application_type;
-        userController.activeBusinessApplication.value = BusinessApplication.fromJson(businessApp.toJson());
-        userController.selectedBusinessApplication.value = businessApp;
-        Get.toNamed(PageRoutes.BusinessPermitApplication).then((value) {
-          loadData();
-        });
+    userController.applicationType.value = businessApp.application_type;
+    userController.activeBusinessApplication.value = BusinessApplication.fromJson(businessApp.toJson());
+    userController.selectedBusinessApplication.value = businessApp;
+    Get.toNamed(PageRoutes.BusinessPermitApplication).then((value) {
+      if (value != null) {
+        loadData();
       }
     });
   }
 
   addImage(BusinessApplication businessApp) {
+    // To Do: remove Images that are deleted in this line
+    if (userController.getConnectivityStatus() == "Online") {
+      attachFileDialog(context).then((value) async {
+        if (value) {
+          EasyLoading.show();
 
+          List<FileAttachment> fileAttachments = fileController.listFileAttachment.value.fileAttachments ?? [];
+          if (fileAttachments.isNotEmpty) {
+            fileController.listFileAttachment.value.fileAttachments.removeWhere((e) => e.type == AttachmentType.businessImage);
+          }
+          FileAttachment _file = FileAttachment("", AttachmentType.businessImage, fileController.fileListTemp.value.fileList, []);
+          fileAttachments.add(_file);
+          fileController.listFileAttachment.value.fileAttachments = fileAttachments;
+          fileController.listFileAttachment.refresh();
+          fileController.fileListTemp.value.fileList = [];
+
+          String fileName = "Business/Attachment/${userController.getId()}/BusinessRequirement/${DateTime.now().millisecondsSinceEpoch.toString()}";
+          
+          for (var e in (fileController.listFileAttachment?.value?.fileAttachments ?? [])) {
+            if (e.files.isNotEmpty) {
+              await fileController.uploadFile(e.files, fileName).then((_imageUrls) async {
+                if (_imageUrls.isNotEmpty) {
+                  e.url = _imageUrls;
+                } else {
+                  e.url = [];
+                }
+              });
+            }
+          }
+
+          List<AttachmentModel> _attachments = [];
+          for (var e in (fileController.listFileAttachment?.value?.fileAttachments ?? [])) {
+            if (e.url.isNotEmpty) {
+              for (var u in e.url) {
+                AttachmentModel _att = AttachmentModel(
+                  "",
+                  u.split(".").last,
+                  u.split("/").last,
+                  e.type,
+                  u,
+                  "",
+                  "",
+                  null
+                );
+                _attachments.add(_att);
+              }
+            }
+          }
+
+          businessApp.attachment.addAll(_attachments);
+
+          await updateBusinessApplication(businessApp).then((value) {
+            EasyLoading.dismiss();
+            popupDialog(context, NotifHeader.success, "Image uploaded successfully!").then((value) {
+              fileController.listFileAttachment.value.fileAttachments = [];
+            });
+          });
+        }
+      });
+    } else if (userController.getConnectivityStatus() == "Offline") {
+      popupDialog(context, NotifHeader.information, "Unable to attach image while the status is offline!");
+    }
   }
   
   addFindings(BusinessApplication businessApp) {
@@ -1489,5 +1787,11 @@ class TransactionsViewState extends State<TransactionsView> {
   
   addRemarks(BusinessApplication businessApp) {
     popupRemarks(context, businessApp);
+  }
+
+  addCoordinates(BusinessApplication businessApp) {
+    userController.activeBusinessApplication.value = BusinessApplication.fromJson(businessApp.toJson());
+    Get.toNamed(PageRoutes.GoogleMap).then((value) {
+    });
   }
 }

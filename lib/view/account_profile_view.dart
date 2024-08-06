@@ -5,7 +5,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_multi_formatter/formatters/masked_input_formatter.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/user_controller.dart';
-import 'package:lgu_bplo/utils/page_routes.dart';
 import 'package:lgu_bplo/utils/theme_color.dart';
 
 import '../utils/env.dart';
@@ -221,7 +220,7 @@ class AccountProfileViewState extends State<AccountProfileView> {
               ),
               suffixIcon: InkWell(
                 onTap: () {
-                  Get.toNamed(PageRoutes.ChangePassword);
+                  // Get.toNamed(PageRoutes.ChangePassword);
                 },
                 child: Icon(
                   Feather.edit,

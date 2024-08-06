@@ -4,6 +4,7 @@ class AttachmentType {
   static const String dtiSecCda = "DTI/SEC/CDA (Complete Page & Valid)";
   static const String brgyClearance = "Barangay Clearance for Business";
   static const String ctc = "Community Tax Certificate for Business";
+  static const String businessImage = "Business Image";
   
   static const String docReq1 = "If Place is Owned (CTC Tax Dec or Affidavit of Consent)";
   static const String docReq2 = "If Rented from LGU (Contract of Lease or Rental Clearance)";

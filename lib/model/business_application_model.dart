@@ -49,8 +49,12 @@ class BusinessApplication {
   String ctc_issued_date = "";
   String plate_no = "";
   String signage_name = "";
+  String business_longitude = "";
+  String business_latitude = "";
+  String business_actual_address = "";
   String remarks = "";
   String application_status = "";
+  String created_by = "";
   List<AttachmentModel> attachment = [];
   List<BusinessOwnerInfoModel> business_owner_info = [];
   List<BusinessContactInfoModel> business_contact_info = [];
@@ -89,8 +93,12 @@ class BusinessApplication {
     this.ctc_issued_date,
     this.plate_no,
     this.signage_name,
+    this.business_longitude,
+    this.business_latitude,
+    this.business_actual_address,
     this.remarks,
     this.application_status,
+    this.created_by,
     this.attachment,
     this.business_owner_info,
     this.business_contact_info,
@@ -130,8 +138,12 @@ class BusinessApplication {
     ctc_issued_date = json["ctc_issued_date"];
     plate_no = json["plate_no"];
     signage_name = json["signage_name"];
+    business_longitude = json["business_longitude"];
+    business_latitude = json["business_latitude"];
+    business_actual_address = json["business_actual_address"];
     remarks = json["remarks"];
     application_status = json["application_status"];
+    created_by = json["created_by"];
 
     if (json['attachment'] != null) {
       attachment = [];
@@ -241,8 +253,12 @@ class BusinessApplication {
     data["ctc_issued_date"] = ctc_issued_date;
     data["plate_no"] = plate_no;
     data["signage_name"] = signage_name;
+    data["business_longitude"] = business_longitude;
+    data["business_latitude"] = business_latitude;
+    data["business_actual_address"] = business_actual_address;
     data["remarks"] = remarks;
     data["application_status"] = application_status;
+    data["created_by"] = created_by;
 
     if (!forLocalDb) {
       if (attachment != null) {
@@ -396,8 +412,8 @@ class BusinessOwnerInfoModel {
 
   BusinessOwnerInfoModel.fromJson(Map<String, dynamic> json) {
     id = json["id"];
-    has_manager = json["has_manager"];
-    is_same = json["is_same"];
+    has_manager = json["has_manager"].toString() == "1" || json["has_manager"].toString() == "true" ? true : false;
+    is_same = json["is_same"].toString() == "1" || json["is_same"].toString() == "true" ? true : false;
     first_name = json["first_name"];
     middle_name = json["middle_name"];
     last_name = json["last_name"];
@@ -578,7 +594,7 @@ class BusinessOwnerAddressInfoModel {
 
   BusinessOwnerAddressInfoModel.fromJson(Map<String, dynamic> json) {
     id = json["id"];
-    is_same = json["is_same"];
+    is_same = json["is_same"].toString() == "1" || json["is_same"].toString() == "true" ? true : false;
     region = json["region"];
     province = json["province"];
     city_municipality = json["city_municipality"];

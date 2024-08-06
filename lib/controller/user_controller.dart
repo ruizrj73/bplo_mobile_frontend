@@ -21,6 +21,8 @@ class UserController extends GetxController {
   RxString userType = "".obs;
   RxString typeId = "".obs;
   RxString typeName = "".obs;
+  RxBool allowOffline = false.obs;
+  RxBool allowAttach = true.obs;
   RxBool hasNewMessage = false.obs;
   RxBool hasNewTransaction = false.obs;
   Rx<BusinessApplication> activeBusinessApplication = BusinessApplication().obs;
@@ -29,6 +31,8 @@ class UserController extends GetxController {
   RxString applicationType = "New".obs;
   Rx<MessageList> listMessages = MessageList().obs;
   Rx<MessageModel> activeMessage = MessageModel().obs;
+  RxString attachmentStatus = "Allowed".obs;
+  RxString connectivityStatus = "Online".obs;
 
   setUserInfo(UserInfo _userInfo) => userInfo = _userInfo;
   setId(String _id) => id.value = _id;
@@ -45,6 +49,10 @@ class UserController extends GetxController {
   setUserType(String _userType) => userType.value = _userType;
   setTypeId(String _typeId) => typeId.value = _typeId;
   setTypeName(String _typeName) => typeName.value = _typeName;
+  setAllowOffline(bool _allowOffline) => allowOffline.value = _allowOffline;
+  setAllowAttach(bool _allowAttach) => allowAttach.value = _allowAttach;
+  setAttachmentStatus(String _attachmentStatus) => attachmentStatus.value = _attachmentStatus;
+  setConnectivityStatus(String _connectivityStatus) => connectivityStatus.value = _connectivityStatus;
 
   UserInfo getUserInfo() => userInfo;
   String getId() => id.value;
@@ -61,6 +69,10 @@ class UserController extends GetxController {
   String getUserType() => userType.value;
   String getTypeId() => typeId.value;
   String getTypeName() => typeName.value;
+  bool getAllowOffline() => allowOffline.value;
+  bool getAllowAttach() => allowAttach.value;
+  String getAttachmentStatus() => attachmentStatus.value;
+  String getConnectivityStatus() => connectivityStatus.value;
   String getFullName() {
     String _name = "";
 
@@ -87,5 +99,9 @@ class UserController extends GetxController {
     userType.value = "";
     typeId.value = "";
     typeName.value = "";
+    allowOffline.value = false;
+    allowAttach.value = true;
+    attachmentStatus.value = "Allowed";
+    connectivityStatus.value = "Online";
   }
 }

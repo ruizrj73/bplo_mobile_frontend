@@ -1,8 +1,15 @@
-// ignore_for_file: missing_return, avoid_print, avoid_function_literals_in_foreach_calls, void_checks, no_leading_underscores_for_local_identifiers
+// ignore_for_file: missing_return, avoid_print, avoid_function_literals_in_foreach_calls, void_checks, no_leading_underscores_for_local_identifiers, prefer_interpolation_to_compose_strings
 
 import 'package:image_picker/image_picker.dart';
 import 'package:lgu_bplo/controller/file_controller.dart';
+import 'package:lgu_bplo/model/app_status.dart';
+import 'package:lgu_bplo/model/application_status_model.dart';
+import 'package:lgu_bplo/model/application_type_model.dart';
 import 'package:lgu_bplo/model/business_application_model.dart';
+import 'package:lgu_bplo/model/business_type_model.dart';
+import 'package:lgu_bplo/model/payment_mode_model.dart';
+import 'package:lgu_bplo/model/setup_line_business_model.dart';
+import 'package:lgu_bplo/model/user_info.dart';
 import 'package:lgu_bplo/utils/attach_file_dialog.dart';
 import 'package:lgu_bplo/utils/db_scripts/db_scripts.dart';
 import 'package:sqflite/sqflite.dart';
@@ -24,10 +31,18 @@ class LocalDB extends GetxController {
       // Set the path to the database. Note: Using the `join` function from the
       // `path` package is best practice to ensure the path is correctly
       // constructed for each platform.
-      join(await getDatabasesPath(), 'localData5'),
+      join(await getDatabasesPath(), 'localData9'),
       // When the database is first created, create a table to store dogs.
       onCreate: (db, version) async {
         // Run the CREATE TABLE statement on the database.
+        await db.execute(DBScripts().createAppStatusTable());
+        await db.execute(DBScripts().createUserTable());
+        await db.execute(DBScripts().createLineBusinessTable());
+        await db.execute(DBScripts().createModeOfPaymentTable());
+        await db.execute(DBScripts().createStatusApplicationTable());
+        await db.execute(DBScripts().createTypeApplicationTable());
+        await db.execute(DBScripts().createTypeBusinessTable());
+        await db.execute(DBScripts().createMeasurePaxTable());
         await db.execute(DBScripts().createBusinessApplicationTable());
         await db.execute(DBScripts().createAttachmentTable());
         await db.execute(DBScripts().createBusinessOwnerInfoTable());
@@ -512,6 +527,334 @@ class LocalDB extends GetxController {
       'accountingfirminfo',
       where: 'baId = ?',
       whereArgs: [_businessApplication.id],
+    );
+  }
+
+  Future<void> deleteAllBusinessApplication() async {
+    final db = await database;
+
+    await db.delete('businessapplication');
+    await db.delete('attachment');
+    await db.delete('businessownerinfo');
+    await db.delete('businesscontactinfo');
+    await db.delete('businessaddressinfo');
+    await db.delete('businessowneraddressinfo');
+    await db.delete('businessowneraddressinfo');
+    await db.delete('lineofbusiness');
+    await db.delete('lineofbusinessmeasurepax');
+    await db.delete('businessfindings');
+    await db.delete('businessnoticetocomply');
+    await db.delete('businessremarks');
+    await db.delete('lessorinfo');
+    await db.delete('bookkeeperinfo');
+    await db.delete('accountingfirminfo');
+  }
+
+  Future<UserInfo> localUserInfo(String userId) async {
+    UserInfo userInfo;
+    // Get a reference to the database.
+    final db = await database;
+
+    List<Map<String, dynamic>> _userInfo = await db.rawQuery("SELECT * FROM mobileuser WHERE id = '$userId'");
+    
+    await Future.forEach(_userInfo, (_user) async {
+      UserInfo _userInfoTemp = UserInfo.fromJson(_user);
+
+      userInfo = _userInfoTemp;
+    });
+
+    return userInfo;
+  }
+
+  Future<void> localInsertUser(UserInfo _userInfo) async {
+    deleteAllUser();
+
+    final db = await database;
+
+    await db.insert(
+      'mobileuser',
+      _userInfo.toJson(forLocalDb: true),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    await localUserInfo(_userInfo.id).then((value) {
+      return value;
+    });
+  }
+
+  Future<void> deleteAllUser() async {
+    final db = await database;
+
+    await db.delete(
+      'mobileuser',
+    );
+  }
+
+  Future<List<PaymentModeModel>> localPaymentMode() async {
+    List<PaymentModeModel> paymentMode = [];
+    // Get a reference to the database.
+    final db = await database;
+
+    List<Map<String, dynamic>> _paymentMode = await db.rawQuery("SELECT * FROM modeofpayment");
+    
+    if (_paymentMode != null && _paymentMode.isNotEmpty) {
+      _paymentMode.forEach((_f) {
+        paymentMode.add(PaymentModeModel.fromJson(_f));
+      });
+    }
+
+    return paymentMode;
+  }
+
+  Future<void> localInsertPaymentMode(PaymentModeModel _paymentMode) async {
+    final db = await database;
+
+    await db.insert(
+      'modeofpayment',
+      _paymentMode.toJson(forLocalDb: true),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    await localPaymentMode().then((value) {
+      return value;
+    });
+  }
+
+  Future<void> deleteAllPaymentMode() async {
+    final db = await database;
+
+    await db.delete(
+      'modeofpayment',
+    );
+  }
+
+  Future<List<ApplicationStatusModel>> localApplicationStatus() async {
+    List<ApplicationStatusModel> applicationStatus = [];
+    // Get a reference to the database.
+    final db = await database;
+
+    List<Map<String, dynamic>> _applicationStatus = await db.rawQuery("SELECT * FROM statusofapplication");
+    
+    if (_applicationStatus != null && _applicationStatus.isNotEmpty) {
+      _applicationStatus.forEach((_f) {
+        applicationStatus.add(ApplicationStatusModel.fromJson(_f));
+      });
+    }
+
+    return applicationStatus;
+  }
+
+  Future<void> localInsertApplicationStatus(ApplicationStatusModel _applicationStatus) async {
+    final db = await database;
+
+    await db.insert(
+      'statusofapplication',
+      _applicationStatus.toJson(forLocalDb: true),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    await localApplicationStatus().then((value) {
+      return value;
+    });
+  }
+
+  Future<void> deleteAllApplicationStatus() async {
+    final db = await database;
+
+    await db.delete(
+      'statusofapplication',
+    );
+  }
+
+  Future<List<ApplicationTypeModel>> localApplicationType() async {
+    List<ApplicationTypeModel> applicationType = [];
+    // Get a reference to the database.
+    final db = await database;
+
+    List<Map<String, dynamic>> _applicationType = await db.rawQuery("SELECT * FROM typeofapplication");
+    
+    if (_applicationType != null && _applicationType.isNotEmpty) {
+      _applicationType.forEach((_f) {
+        applicationType.add(ApplicationTypeModel.fromJson(_f));
+      });
+    }
+
+    return applicationType;
+  }
+
+  Future<void> localInsertApplicationType(ApplicationTypeModel _applicationType) async {
+    final db = await database;
+
+    await db.insert(
+      'typeofapplication',
+      _applicationType.toJson(forLocalDb: true),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    await localApplicationType().then((value) {
+      return value;
+    });
+  }
+
+  Future<void> deleteAllApplicationType() async {
+    final db = await database;
+
+    await db.delete(
+      'typeofapplication',
+    );
+  }
+
+  Future<List<BusinessTypeModel>> localBusinessType() async {
+    List<BusinessTypeModel> businessType = [];
+    // Get a reference to the database.
+    final db = await database;
+
+    List<Map<String, dynamic>> _businessType = await db.rawQuery("SELECT * FROM typeofbusiness");
+    
+    if (_businessType != null && _businessType.isNotEmpty) {
+      _businessType.forEach((_f) {
+        businessType.add(BusinessTypeModel.fromJson(_f));
+      });
+    }
+
+    return businessType;
+  }
+
+  Future<void> localInsertBusinessType(BusinessTypeModel _businessType) async {
+    final db = await database;
+
+    await db.insert(
+      'typeofbusiness',
+      _businessType.toJson(forLocalDb: true),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    await localBusinessType().then((value) {
+      return value;
+    });
+  }
+
+  Future<void> deleteAllBusinessType() async {
+    final db = await database;
+
+    await db.delete(
+      'typeofbusiness',
+    );
+  }
+
+  Future<List<SetupLineBusiness>> localSetupLineBusiness() async {
+    List<SetupLineBusiness> lineBusiness = [];
+    // Get a reference to the database.
+    final db = await database;
+
+    List<Map<String, dynamic>> _lineBusiness = await db.rawQuery("SELECT * FROM linebusiness");
+    
+    if (_lineBusiness != null && _lineBusiness.isNotEmpty) {
+      _lineBusiness.forEach((_f) {
+        lineBusiness.add(SetupLineBusiness.fromJson(_f));
+      });
+    }
+
+    return lineBusiness;
+  }
+
+  Future<void> localInsertSetupLineBusiness(SetupLineBusiness _lineBusiness) async {
+    final db = await database;
+
+    await db.insert(
+      'linebusiness',
+      _lineBusiness.toJson(forLocalDb: true),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    await localSetupLineBusiness().then((value) {
+      return value;
+    });
+  }
+
+  Future<void> deleteAllSetupLineBusiness() async {
+    final db = await database;
+
+    await db.delete(
+      'linebusiness',
+    );
+  }
+
+  Future<List<SetupLineBusiness>> localMeasurePax() async {
+    List<SetupLineBusiness> measurePax = [];
+    // Get a reference to the database.
+    final db = await database;
+
+    List<Map<String, dynamic>> _measurePax = await db.rawQuery("SELECT * FROM measurepax");
+    
+    if (_measurePax != null && _measurePax.isNotEmpty) {
+      _measurePax.forEach((_f) {
+        measurePax.add(SetupLineBusiness.fromJson(_f));
+      });
+    }
+
+    return measurePax;
+  }
+
+  Future<void> localInsertMeasurePax(SetupLineBusiness _measurePax) async {
+    final db = await database;
+
+    await db.insert(
+      'measurepax',
+      _measurePax.toJson(forLocalDb: true),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    await localMeasurePax().then((value) {
+      return value;
+    });
+  }
+
+  Future<void> deleteAllMeasurePax() async {
+    final db = await database;
+
+    await db.delete(
+      'measurepax',
+    );
+  }
+
+  Future<AppStatus> localAppStatus() async {
+    AppStatus appStatus;
+    // Get a reference to the database.
+    final db = await database;
+
+    List<Map<String, dynamic>> _appStatus = await db.rawQuery("SELECT * FROM appstatus");
+    
+    await Future.forEach(_appStatus, (_appStatus) async {
+      AppStatus _appStatusTemp = AppStatus.fromJson(_appStatus);
+
+      appStatus = _appStatusTemp;
+    });
+
+    return appStatus;
+  }
+
+  Future<void> localInsertAppStatus(AppStatus _appStatus) async {
+    deleteAllAppStatus();
+
+    final db = await database;
+
+    await db.insert(
+      'appstatus',
+      _appStatus.toJson(forLocalDb: true),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    await localAppStatus().then((value) {
+      return value;
+    });
+  }
+
+  Future<void> deleteAllAppStatus() async {
+    final db = await database;
+
+    await db.delete(
+      'appstatus',
     );
   }
 

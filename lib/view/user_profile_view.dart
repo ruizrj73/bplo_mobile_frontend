@@ -1,9 +1,11 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
 import 'package:lgu_bplo/model/user_info.dart';
+import 'package:lgu_bplo/utils/env.dart';
 import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
@@ -102,6 +104,10 @@ class UserProfileViewState extends State<UserProfileView> {
                     height: 30,
                     child: TextField(
                       controller: _usernameController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                        LengthLimitingTextInputFormatter(12),
+                      ],
                       style: TextStyle(fontSize: 14),
                     ),
                   ),
@@ -111,6 +117,10 @@ class UserProfileViewState extends State<UserProfileView> {
                     height: 30,
                     child: TextField(
                       controller: _passwordController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                        LengthLimitingTextInputFormatter(12),
+                      ],
                       obscureText: !isShowPassword,
                       style: TextStyle(fontSize: 14),
                       decoration: InputDecoration(
@@ -137,6 +147,10 @@ class UserProfileViewState extends State<UserProfileView> {
                     height: 30,
                     child: TextField(
                       controller: _confirmPasswordController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                        LengthLimitingTextInputFormatter(12),
+                      ],
                       obscureText: !isShowConfirmPassword,
                       style: TextStyle(fontSize: 14),
                       decoration: InputDecoration(
@@ -330,20 +344,20 @@ class UserProfileViewState extends State<UserProfileView> {
       popupDialog(context, NotifHeader.error, "Password must be at least 8 characters.");
       return;
     }
-    if (!_passwordController.text.contains(new RegExp('[a-z]'))) {
-      popupDialog(context, NotifHeader.error, "Password must contain lowercase letters.");
-      return;
-    }
-    if (!_passwordController.text.contains(new RegExp('[A-Z]'))) {
-      popupDialog(context, NotifHeader.error, "Password must contain uppercase letters.");
-      return;
-    }
-    if (!_passwordController.text.contains(new RegExp(r'[~!@#$%^&*()_+`{}|<>?;:./,=\-\[\]]'))) {
-      popupDialog(context, NotifHeader.error, "Password must contain special characters.");
-      return;
-    }
+    // if (!_passwordController.text.contains(new RegExp('[a-z]'))) {
+    //   popupDialog(context, NotifHeader.error, "Password must contain lowercase letters.");
+    //   return;
+    // }
+    // if (!_passwordController.text.contains(new RegExp('[A-Z]'))) {
+    //   popupDialog(context, NotifHeader.error, "Password must contain uppercase letters.");
+    //   return;
+    // }
+    // if (!_passwordController.text.contains(new RegExp(r'[~!@#$%^&*()_+`{}|<>?;:./,=\-\[\]]'))) {
+    //   popupDialog(context, NotifHeader.error, "Password must contain special characters.");
+    //   return;
+    // }
     if (_usernameController.text.trim() == "") {
-      popupDialog(context, NotifHeader.error, "Mobile number is invalid.");
+      popupDialog(context, NotifHeader.error, "Username is invalid.");
       return;
     }
     if (_usernameController.text.trim().length < 8) {
@@ -379,9 +393,11 @@ class UserProfileViewState extends State<UserProfileView> {
                 userController.getEmail(),
                 userController.getContactNumber(),
                 userController.getClusterGroup(),
+                Env.projectLocation,
                 "",
                 "",
-                "",
+                false,
+                true
               );
 
               userController.setUserInfo(userInfo);

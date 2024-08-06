@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_interpolation_to_compose_strings
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
@@ -30,12 +31,24 @@ class CreateAccountViewState extends State<CreateAccountView> {
 
   List<String> clusterGroupSelection = [
     "",
-    "Cluster 1",
-    "Cluster 2",
-    "Cluster 3",
-    "Cluster 4",
-    "Cluster 5",
-    "Cluster 6",
+    "Cluster 1-A",
+    "Cluster 1-B",
+    "Cluster 1-C",
+    "Cluster 2-A",
+    "Cluster 2-B",
+    "Cluster 2-C",
+    "Cluster 3-A",
+    "Cluster 3-B",
+    "Cluster 3-C",
+    "Cluster 4-A",
+    "Cluster 4-B",
+    "Cluster 4-C",
+    "Cluster 5-A",
+    "Cluster 5-B",
+    "Cluster 5-C",
+    "Cluster 6-A",
+    "Cluster 6-B",
+    "Cluster 6-C",
   ];
 
   @override
@@ -158,6 +171,9 @@ class CreateAccountViewState extends State<CreateAccountView> {
                     height: 30,
                     child: TextField(
                       controller: _emailAddressController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                      ],
                       style: TextStyle(fontSize: 14),
                     ),
                   ),
@@ -167,6 +183,10 @@ class CreateAccountViewState extends State<CreateAccountView> {
                     height: 33,
                     child: TextField(
                       controller: _contactNoController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
                       style: TextStyle(fontSize: 14),
                       decoration: InputDecoration(
                         isDense: true,

@@ -14,6 +14,7 @@ class PageRoutes {
   static String Dashboard = '/dashboard';
   static String Call = '/call';
   static String GoogleDirection = '/googledirection';
+  static String GoogleMap = '/googlemap';
 
   static String BusinessPermitApplication = '/transaction/businesspermitapplication';
 

@@ -7,7 +7,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:lgu_bplo/controller/console_logs_controller.dart';
-import 'package:lgu_bplo/model/business_application_model.dart';
 import 'package:lgu_bplo/utils/request/backend_request.dart';
 
 import '../controller/account_controller.dart';
@@ -27,35 +26,35 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future<void> handleMessage(dynamic msgData) async {
-  final ConsoleLogsController consoleLogsController = Get.find();
-  final UserController userController = Get.find();
-  final AccountController accountController = Get.find();
+  // final ConsoleLogsController consoleLogsController = Get.find();
+  // final UserController userController = Get.find();
+  // final AccountController accountController = Get.find();
 
-  if (!accountController.getIsLoggedIn()) return;
+  // if (!accountController.getIsLoggedIn()) return;
 
-  consoleLogsController.consoleLogs.value.logs.add("Firebase Notification from foreground : ID ${msgData["inboxMessageId"]}");
-  consoleLogsController.consoleLogs.value.logs.add("Firebase Notification from foreground : ID ${msgData["transactionId"]}");
+  // consoleLogsController.consoleLogs.value.logs.add("Firebase Notification from foreground : ID ${msgData["inboxMessageId"]}");
+  // consoleLogsController.consoleLogs.value.logs.add("Firebase Notification from foreground : ID ${msgData["transactionId"]}");
 
-  if (msgData["inboxMessageId"] != "") {
-    userController.hasNewMessage.value = true;
-    userController.hasNewMessage.refresh();
-  }
+  // if (msgData["inboxMessageId"] != "") {
+  //   userController.hasNewMessage.value = true;
+  //   userController.hasNewMessage.refresh();
+  // }
 
-  if (msgData["transactionId"] != "") {
-    userController.hasNewTransaction.value = true;
-    userController.hasNewTransaction.refresh();
-  }
+  // if (msgData["transactionId"] != "") {
+  //   userController.hasNewTransaction.value = true;
+  //   userController.hasNewTransaction.refresh();
+  // }
 
-  await getListTransactions().then((res) {
-    List<BusinessApplication> businessApplicationTemp = [];
-    if (res != null) {
-      res.forEach((p) {
-        businessApplicationTemp.add(BusinessApplication.fromJson(p));
-      });
-    }
-    userController.listBusinessApplication.value.application = businessApplicationTemp;
-    userController.listBusinessApplication.refresh();
-  });
+  // await getListTransactions().then((res) {
+  //   List<BusinessApplication> businessApplicationTemp = [];
+  //   if (res != null) {
+  //     res.forEach((p) {
+  //       businessApplicationTemp.add(BusinessApplication.fromJson(p));
+  //     });
+  //   }
+  //   userController.listBusinessApplication.value.application = businessApplicationTemp;
+  //   userController.listBusinessApplication.refresh();
+  // });
 }
 
 class FirebaseMessagingHandler extends GetxController{ 

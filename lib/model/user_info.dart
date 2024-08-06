@@ -15,6 +15,8 @@ class UserInfo {
   String userType = "";
   String typeId = "";
   String typeName = "";
+  bool allowOffline = false;
+  bool allowAttach = true;
 
   UserInfo(
     this.id,
@@ -31,6 +33,8 @@ class UserInfo {
     this.userType,
     this.typeId,
     this.typeName,
+    this.allowOffline,
+    this.allowAttach,
   );
 
   UserInfo.fromJson(Map<String, dynamic> json) {
@@ -48,6 +52,8 @@ class UserInfo {
     userType = json["userType"];
     typeId = json["typeId"];
     typeName = json["typeName"];
+    allowOffline = json["allowOffline"].toString() == "1" || json["allowOffline"].toString() == "true" ? true : false;
+    allowAttach = json["allowAttach"].toString() == "1" || json["allowAttach"].toString() == "true" ? true : false;
   }
 
   Map<String, dynamic> toJson({bool forLocalDb = false}) {
@@ -66,6 +72,8 @@ class UserInfo {
     data["userType"] = userType;
     data["typeId"] = typeId;
     data["typeName"] = typeName;
+    data["allowOffline"] = allowOffline;
+    data["allowAttach"] = allowAttach;
     return data;
   }
 }

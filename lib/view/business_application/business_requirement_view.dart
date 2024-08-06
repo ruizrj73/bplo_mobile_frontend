@@ -440,13 +440,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq1);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq1);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -491,13 +493,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq2);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq2);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -542,13 +546,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq3);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq3);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -593,13 +599,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq4);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq4);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -644,13 +652,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq5);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq5);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -695,13 +705,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq6);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq6);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -746,13 +758,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq7);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq7);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -797,13 +811,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq8);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq8);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -848,13 +864,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq9);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq9);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -899,13 +917,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq10);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq10);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -950,13 +970,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq11);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq11);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1001,13 +1023,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq12);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq12);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1052,13 +1076,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq13);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq13);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1103,13 +1129,15 @@ class BusinessRequirementViewState extends State<BusinessRequirementView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: ThemeColor.primary,
+                  backgroundColor: userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                   fixedSize: Size(80, 30),
                   foregroundColor: ThemeColor.primaryText,
                   shadowColor: Colors.black
                 ),
                 onPressed: () {
-                  attachFile(AttachmentType.docReq14);
+                  if (userController.getAttachmentStatus() == "Allowed") {
+                    attachFile(AttachmentType.docReq14);
+                  }
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

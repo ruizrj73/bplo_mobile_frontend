@@ -100,7 +100,7 @@ Future<bool> attachFileDialog(BuildContext context, {String applicationId = "", 
                                     FileIcon(key.path, size: 40),
                                     Flexible(
                                       child: Text(
-                                        "test",
+                                        key.path,
                                         overflow: TextOverflow.fade,
                                         maxLines: 1,
                                         softWrap: false,

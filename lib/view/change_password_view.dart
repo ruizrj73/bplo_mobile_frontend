@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
@@ -113,6 +114,10 @@ class ChangePasswordViewState extends State<ChangePasswordView> {
           TextField(
             keyboardType: TextInputType.text,
             controller: _oldPasswordController,
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(RegExp(r'\s')),
+              LengthLimitingTextInputFormatter(12),
+            ],
             obscureText: !_oldPasswordVisible,
             decoration: InputDecoration(
               prefixIcon: Icon(MaterialIcons.lock),
@@ -156,6 +161,10 @@ class ChangePasswordViewState extends State<ChangePasswordView> {
           TextField(
             keyboardType: TextInputType.text,
             controller: _newPasswordController,
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(RegExp(r'\s')),
+              LengthLimitingTextInputFormatter(12),
+            ],
             obscureText: !_newPasswordVisible,
             decoration: InputDecoration(
               prefixIcon: Icon(MaterialIcons.lock),
@@ -189,6 +198,10 @@ class ChangePasswordViewState extends State<ChangePasswordView> {
           TextField(
             keyboardType: TextInputType.text,
             controller: _confirmPasswordController,
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(RegExp(r'\s')),
+              LengthLimitingTextInputFormatter(12),
+            ],
             obscureText: !_confirmPasswordVisible,
             decoration: InputDecoration(
               prefixIcon: Icon(MaterialIcons.lock),

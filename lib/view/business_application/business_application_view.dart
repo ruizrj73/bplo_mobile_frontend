@@ -6,6 +6,7 @@ import 'package:lgu_bplo/controller/main_controller.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
 import 'package:lgu_bplo/model/business_application_model.dart';
 import 'package:lgu_bplo/utils/attach_file_dialog.dart';
+import 'package:lgu_bplo/utils/env.dart';
 import 'package:lgu_bplo/utils/local_db.dart';
 import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
@@ -16,6 +17,7 @@ import 'package:lgu_bplo/view/business_application/business_basic_info_view.dart
 import 'package:lgu_bplo/view/business_application/business_operation_info_view.dart';
 import 'package:lgu_bplo/view/business_application/business_other_info_view.dart';
 import 'package:lgu_bplo/view/business_application/business_requirement_view.dart';
+import 'package:uuid/uuid.dart';
 
 class BusinessApplicationView extends StatefulWidget {
   // ignore: use_key_in_widget_constructors
@@ -86,6 +88,16 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
             Get.back();
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.close, color: ThemeColor.primaryText),
+            onPressed: () {
+              fileController.listFileAttachment.value.fileAttachments = [];
+              fileController.listFileAttachment.refresh();
+              Get.back();
+            },
+          ),
+        ],
         title: FittedBox(
           alignment: Alignment.centerLeft,
           fit: BoxFit.scaleDown,
@@ -180,10 +192,10 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
                   elevation: 3,
                 ),
                 onPressed: () async {
-                  buttonFn("Save as Draft");
+                  buttonFn("Save & Exit");
                 },
                 child: Text(
-                  'Save as Draft',
+                  'Save & Exit',
                   style: TextStyle(
                       color: ThemeColor.primaryText,
                       fontWeight: FontWeight.w800,
@@ -261,7 +273,11 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
           if (userController.activeBusinessApplication.value.application_status == null) {
             BusinessBasicInfoView.businessBasicInfoEntry().then((value) {
               userController.activeBusinessApplication.value.application_status = "Recorded"; //"Waiting List";
-              submitPreBusinessApplication();
+              if (userController.getConnectivityStatus() == "Online") {
+                submitPreBusinessApplication();
+              } else if (userController.getConnectivityStatus() == "Offline") {
+                submitPreBusinessApplicationOffline();
+              }
             });
           } else {
             BusinessBasicInfoView.businessBasicInfoEntry().then((value) {
@@ -275,16 +291,19 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
             });
           }
         } else if (viewedTab == 5) {
-          submitBusinessApplication();
+          if (userController.getConnectivityStatus() == "Online") {
+            submitBusinessApplication();
+          } else if (userController.getConnectivityStatus() == "Offline") {
+            submitBusinessApplicationOffline();
+          }
         }
         break;
-      case "Save as Draft":
-        LocalDB().localInsertBusinessApplication(userController.activeBusinessApplication.value).then((value) {
-          popupDialog(context, NotifHeader.success, "Draft Application successfully saved.").then((value) {
-            fileController.listFileAttachment.value.fileAttachments = [];
-            Get.back();
-          });
-        });
+      case "Save & Exit":
+        if (userController.getConnectivityStatus() == "Online") {
+          submitBusinessApplication();
+        } else if (userController.getConnectivityStatus() == "Offline") {
+          submitBusinessApplicationOffline();
+        }
         break;
       case "Continue":
         setState(() {
@@ -346,6 +365,7 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         userController.activeBusinessApplication.value.application_type = userController.applicationType.value;
         userController.activeBusinessApplication.value.user_id = userController.getId();
         userController.activeBusinessApplication.value.user_name = userController.getFullName();
+        userController.activeBusinessApplication.value.created_by = Env.projectLocation;
         userController.activeBusinessApplication.value.remarks = ""; // "Documentary  requirements, still waiting for approval.";
 
         await saveBusinessApplication(userController.activeBusinessApplication.value).then((value) {
@@ -353,7 +373,7 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
           popupDialog(context, NotifHeader.success, "Business Survey and Assessment Sheet, Successfully Saved.").then((value) {
             fileController.listFileAttachment.value.fileAttachments = [];
             userController.activeBusinessApplication.value = BusinessApplication();
-            Get.back();
+            Get.back(result: true);
           });
         });
         
@@ -361,6 +381,33 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         popupDialog(context, NotifHeader.error, "Please check your internet connection.");
         return;
       }
+    });
+  }
+  
+  submitPreBusinessApplicationOffline() async {
+    if (userController.activeBusinessApplication.value.business_name.trim() == "") {
+      popupDialog(context, NotifHeader.error, "Please input Business Name.");
+      return;
+    }
+
+    EasyLoading.show();
+    var uuid = Uuid();
+
+    userController.activeBusinessApplication.value.id = uuid.v1();
+    userController.activeBusinessApplication.value.attachment = [];
+    userController.activeBusinessApplication.value.application_type = userController.applicationType.value;
+    userController.activeBusinessApplication.value.user_id = userController.getId();
+    userController.activeBusinessApplication.value.user_name = userController.getFullName();
+    userController.activeBusinessApplication.value.created_by = Env.projectLocation;
+    userController.activeBusinessApplication.value.remarks = ""; // "Documentary  requirements, still waiting for approval.";
+
+    await LocalDB().localInsertBusinessApplication(userController.activeBusinessApplication.value).then((value) {
+      EasyLoading.dismiss();
+      popupDialog(context, NotifHeader.success, "Business Survey and Assessment Sheet, Successfully Saved.").then((value) {
+        fileController.listFileAttachment.value.fileAttachments = [];
+        userController.activeBusinessApplication.value = BusinessApplication();
+        Get.back(result: true);
+      });
     });
   }
 
@@ -406,9 +453,9 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
 
         await updateBusinessApplication(userController.activeBusinessApplication.value).then((value) {
           EasyLoading.dismiss();
-          popupDialog(context, NotifHeader.success, "Complete Business Survey and Assessment Sheet, Successfully Recorded").then((value) {
+          popupDialog(context, NotifHeader.success, "Business Survey and Assessment Sheet, Successfully Recorded").then((value) {
             fileController.listFileAttachment.value.fileAttachments = [];
-            Get.back();
+            Get.back(result: true);
           });
         });
         
@@ -416,6 +463,18 @@ class BusinessApplicationViewState extends State<BusinessApplicationView> {
         popupDialog(context, NotifHeader.error, "Please check your internet connection.");
         return;
       }
+    });
+  }
+
+  submitBusinessApplicationOffline() async {
+    EasyLoading.show();
+
+    await LocalDB().localInsertBusinessApplication(userController.activeBusinessApplication.value).then((value) {
+      EasyLoading.dismiss();
+      popupDialog(context, NotifHeader.success, "Business Survey and Assessment Sheet, Successfully Recorded").then((value) {
+        fileController.listFileAttachment.value.fileAttachments = [];
+        Get.back(result: true);
+      });
     });
   }
 }

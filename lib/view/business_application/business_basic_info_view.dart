@@ -1,6 +1,7 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers, prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_final_fields
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/file_controller.dart';
@@ -50,6 +51,7 @@ class BusinessBasicInfoViewState extends State<BusinessBasicInfoView> {
   void initState() {
     super.initState(); 
 
+    EasyLoading.show();
     setState(() {
       switch (userController.applicationType.value) {
         case "New":
@@ -75,6 +77,7 @@ class BusinessBasicInfoViewState extends State<BusinessBasicInfoView> {
     });
 
     setValues();
+    EasyLoading.dismiss();
   }
 
   setValues() {
@@ -276,13 +279,13 @@ class BusinessBasicInfoViewState extends State<BusinessBasicInfoView> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    backgroundColor: userController.activeBusinessApplication.value.id == null ? ThemeColor.primary : ThemeColor.disabled,
+                    backgroundColor: userController.activeBusinessApplication.value.id == null && userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                     fixedSize: Size(80, 30),
                     foregroundColor: ThemeColor.primaryText,
                     shadowColor: Colors.black
                   ),
                   onPressed: () {
-                    if (userController.activeBusinessApplication.value.id == null) {
+                    if (userController.activeBusinessApplication.value.id == null && userController.getAttachmentStatus() == "Allowed") {
                       attachFile(AttachmentType.dtiSecCda);
                     }
                   },
@@ -333,13 +336,13 @@ class BusinessBasicInfoViewState extends State<BusinessBasicInfoView> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    backgroundColor: userController.activeBusinessApplication.value.id == null ? ThemeColor.primary : ThemeColor.disabled,
+                    backgroundColor: userController.activeBusinessApplication.value.id == null && userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                     fixedSize: Size(80, 30),
                     foregroundColor: ThemeColor.primaryText,
                     shadowColor: Colors.black
                   ),
                   onPressed: () {
-                    if (userController.activeBusinessApplication.value.id == null) {
+                    if (userController.activeBusinessApplication.value.id == null && userController.getAttachmentStatus() == "Allowed") {
                       attachFile(AttachmentType.brgyClearance);
                     }
                   },
@@ -390,13 +393,13 @@ class BusinessBasicInfoViewState extends State<BusinessBasicInfoView> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    backgroundColor: userController.activeBusinessApplication.value.id == null ? ThemeColor.primary : ThemeColor.disabled,
+                    backgroundColor: userController.activeBusinessApplication.value.id == null && userController.getAttachmentStatus() == "Allowed" ? ThemeColor.primary : ThemeColor.disabled,
                     fixedSize: Size(80, 30),
                     foregroundColor: ThemeColor.primaryText,
                     shadowColor: Colors.black
                   ),
                   onPressed: () {
-                    if (userController.activeBusinessApplication.value.id == null) {
+                    if (userController.activeBusinessApplication.value.id == null && userController.getAttachmentStatus() == "Allowed") {
                       attachFile(AttachmentType.ctc);
                     }
                   },

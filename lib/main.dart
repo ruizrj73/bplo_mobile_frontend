@@ -32,6 +32,7 @@ import 'package:lgu_bplo/view/business_application/business_application_view.dar
 import 'package:lgu_bplo/view/change_password_view.dart';
 import 'package:lgu_bplo/view/create_account_view.dart';
 import 'package:lgu_bplo/view/forgot_password_view.dart';
+import 'package:lgu_bplo/view/google_map_view.dart';
 import 'package:lgu_bplo/view/help_center_view.dart';
 import 'package:lgu_bplo/view/home_view.dart';
 import 'package:lgu_bplo/view/inbox_view.dart';
@@ -245,6 +246,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       getPages: [
         GetPage(name: PageRoutes.AppLoad, page: () => const AppLoadView()),
         GetPage(name: PageRoutes.Home, page: () => const HomeView()),
+        GetPage(name: PageRoutes.GoogleMap, page: () => const GoogleMapView()),
         GetPage(name: PageRoutes.Login, page: () => const LoginView()),
         GetPage(name: PageRoutes.CreateAccount, page: () => const CreateAccountView()),
         GetPage(name: PageRoutes.UserProfile, page: () => const UserProfileView()),

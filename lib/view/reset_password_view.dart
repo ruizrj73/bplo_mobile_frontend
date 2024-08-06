@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
@@ -93,6 +94,10 @@ class ResetPasswordViewState extends State<ResetPasswordView> {
           TextField(
             keyboardType: TextInputType.text,
             controller: _newPasswordController,
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(RegExp(r'\s')),
+              LengthLimitingTextInputFormatter(12),
+            ],
             obscureText: !_newPasswordVisible,
             decoration: InputDecoration(
               prefixIcon: Icon(MaterialIcons.lock),
@@ -124,6 +129,10 @@ class ResetPasswordViewState extends State<ResetPasswordView> {
           TextField(
             keyboardType: TextInputType.text,
             controller: _confirmPasswordController,
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(RegExp(r'\s')),
+              LengthLimitingTextInputFormatter(12),
+            ],
             obscureText: !_confirmPasswordVisible,
             decoration: InputDecoration(
               prefixIcon: Icon(MaterialIcons.lock),
@@ -226,18 +235,18 @@ class ResetPasswordViewState extends State<ResetPasswordView> {
       popupDialog(context, NotifHeader.error, "Password must be at least 8 characters.");
       return;
     }
-    if (!_newPasswordController.text.contains(new RegExp('[a-z]'))) {
-      popupDialog(context, NotifHeader.error, "Password must contain lowercase letters.");
-      return;
-    }
-    if (!_newPasswordController.text.contains(new RegExp('[A-Z]'))) {
-      popupDialog(context, NotifHeader.error, "Password must contain uppercase letters.");
-      return;
-    }
-    if (!_newPasswordController.text.contains(new RegExp(r'[~!@#$%^&*()_+`{}|<>?;:./,=\-\[\]]'))) {
-      popupDialog(context, NotifHeader.error, "Password must contain special characters.");
-      return;
-    }
+    // if (!_newPasswordController.text.contains(new RegExp('[a-z]'))) {
+    //   popupDialog(context, NotifHeader.error, "Password must contain lowercase letters.");
+    //   return;
+    // }
+    // if (!_newPasswordController.text.contains(new RegExp('[A-Z]'))) {
+    //   popupDialog(context, NotifHeader.error, "Password must contain uppercase letters.");
+    //   return;
+    // }
+    // if (!_newPasswordController.text.contains(new RegExp(r'[~!@#$%^&*()_+`{}|<>?;:./,=\-\[\]]'))) {
+    //   popupDialog(context, NotifHeader.error, "Password must contain special characters.");
+    //   return;
+    // }
     networkConnectionController.checkConnectionStatus().then((connResult) {
       if (connResult) {
         EasyLoading.show();

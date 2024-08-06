@@ -81,6 +81,8 @@ Future<bool> isLoginValid(String username, String password) async {
     userController.setUserType(resUserInfo.userType);
     userController.setTypeId(resUserInfo.typeId);
     userController.setTypeName(resUserInfo.typeName);
+    userController.setAllowOffline(resUserInfo.allowOffline);
+    userController.setAllowAttach(resUserInfo.allowAttach);
   }
 
   return response["resultObject"]["isMobileUserValid"];
@@ -232,6 +234,8 @@ Future<String> getUserInfo(String userId) async {
     userController.setUserType(resUserInfo.userType);
     userController.setTypeId(resUserInfo.typeId);
     userController.setTypeName(resUserInfo.typeName);
+    userController.setAllowOffline(resUserInfo.allowOffline);
+    userController.setAllowAttach(resUserInfo.allowAttach);
   }
 
   return response["resultEnum"];
@@ -440,6 +444,26 @@ Future<dynamic> markAsReadMessage(String msgId) async {
   });
 
   await sendRequest(requestMethod.patch, url, body: _body, isTokenRequired: true).then((value) {
+    response = value;
+  });
+
+  if (response["resultEnum"] == "Success") {
+    return response["resultObject"];
+  }
+
+  return response["resultEnum"];
+}
+
+Future<dynamic> updateBusinessLocation(String id, String longitude, String latitude, String locStr) async {
+  var response;
+  String url = apiUrl + businessapplication;
+  url = url + "/businessLocation/update";
+  url = url + "?id=" + id;
+  url = url + "&longitude=" + longitude;
+  url = url + "&latitude=" + latitude;
+  url = url + "&actual_address=" + locStr;
+
+  await sendRequest(requestMethod.patch, url, body: "", isTokenRequired: true).then((value) {
     response = value;
   });
 

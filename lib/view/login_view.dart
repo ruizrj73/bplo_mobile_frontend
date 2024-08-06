@@ -3,15 +3,16 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
 import 'package:lgu_bplo/controller/device_info_controller.dart';
 import 'package:lgu_bplo/controller/network_connection_controller.dart';
-import 'package:lgu_bplo/model/business_application_model.dart';
 import 'package:lgu_bplo/model/message_model.dart';
 import 'package:lgu_bplo/utils/env.dart';
 import 'package:lgu_bplo/utils/firebase_messaging_handler.dart';
+import 'package:lgu_bplo/utils/local_db.dart';
 import 'package:lgu_bplo/utils/notification_header.dart';
 import 'package:lgu_bplo/utils/page_routes.dart';
 import 'package:lgu_bplo/utils/popup_dialog.dart';
@@ -149,6 +150,10 @@ class LoginViewState extends State<LoginView> {
                     child: TextField(
                       keyboardType: TextInputType.text,
                       controller: _usernameController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                        LengthLimitingTextInputFormatter(12),
+                      ],
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.zero,
                         prefixIcon: Icon(MaterialIcons.person),
@@ -177,6 +182,10 @@ class LoginViewState extends State<LoginView> {
                     child: TextField(
                       keyboardType: TextInputType.text,
                       controller: _userPasswordController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                        LengthLimitingTextInputFormatter(12),
+                      ],
                       obscureText: !_passwordVisible,
                       onSubmitted: ((value) => login()),
                       decoration: InputDecoration(
@@ -334,6 +343,7 @@ class LoginViewState extends State<LoginView> {
 
         isLoginValid(_usernameController.text, _userPasswordController.text).then((value) {
           if (value) {
+            LocalDB().localInsertUser(userController.getUserInfo());
             userController.setPassword(_userPasswordController.text);
             accountController.setIsLoggedIn(true);
             accountController.saveUserId(userController.getId());
@@ -357,16 +367,16 @@ class LoginViewState extends State<LoginView> {
   }
 
   initTransaction() async {
-    await getListTransactions().then((res) {
-      List<BusinessApplication> businessApplicationTemp = [];
-      if (res != null) {
-        res.forEach((p) {
-          businessApplicationTemp.add(BusinessApplication.fromJson(p));
-        });
-      }
-      userController.listBusinessApplication.value.application = businessApplicationTemp;
-      userController.listBusinessApplication.refresh();
-    });
+    // await getListTransactions().then((res) {
+    //   List<BusinessApplication> businessApplicationTemp = [];
+    //   if (res != null) {
+    //     res.forEach((p) {
+    //       businessApplicationTemp.add(BusinessApplication.fromJson(p));
+    //     });
+    //   }
+    //   userController.listBusinessApplication.value.application = businessApplicationTemp;
+    //   userController.listBusinessApplication.refresh();
+    // });
   }
 
   initMessages() async {
@@ -410,6 +420,7 @@ class LoginViewState extends State<LoginView> {
           if (_otp != null) {
             await registerUser(userController.getUserInfo()).then((value) {
               if (value == "Success") {
+                popupDialog(context, NotifHeader.success, "Account Registration complete. You can now login to the application.");
                 userController.clearState();
               } else {
                 popupDialog(context, NotifHeader.error, "There's a problem in registering account.");
